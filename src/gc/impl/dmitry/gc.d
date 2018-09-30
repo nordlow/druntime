@@ -27,7 +27,7 @@
  *    (See accompanying file LICENSE or copy at
  *          http://www.boost.org/LICENSE_1_0.txt)
  */
-module gc.impl.manual.gc;
+module gc.impl.dmitry.gc;
 
 import gc.config;
 import gc.gcinterface;
@@ -40,27 +40,27 @@ static import core.memory;
 
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null) @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
-class ManualGC : GC
+class DmitryGC : GC
 {
     __gshared Array!Root roots;
     __gshared Array!Range ranges;
 
     static void initialize(ref GC gc)
     {
-        printf("_________at:%s\n", __FUNCTION__.ptr);
+        printf("at:%s\n", __FUNCTION__.ptr);
 
         import core.stdc.string;
 
-        if (config.gc != "manual")
+        if (config.gc != "dmitry")
             return;
 
-        auto p = cstdlib.malloc(__traits(classInstanceSize, ManualGC));
+        auto p = cstdlib.malloc(__traits(classInstanceSize, DmitryGC));
         if (!p)
             onOutOfMemoryError();
 
-        auto init = typeid(ManualGC).initializer();
-        assert(init.length == __traits(classInstanceSize, ManualGC));
-        auto instance = cast(ManualGC) memcpy(p, init.ptr, init.length);
+        auto init = typeid(DmitryGC).initializer();
+        assert(init.length == __traits(classInstanceSize, DmitryGC));
+        auto instance = cast(DmitryGC) memcpy(p, init.ptr, init.length);
         instance.__ctor();
 
         gc = instance;
@@ -68,10 +68,10 @@ class ManualGC : GC
 
     static void finalize(ref GC gc)
     {
-        if (config.gc != "manual")
+        if (config.gc != "dmitry")
             return;
 
-        auto instance = cast(ManualGC) gc;
+        auto instance = cast(DmitryGC) gc;
         instance.Dtor();
         cstdlib.free(cast(void*) instance);
     }
