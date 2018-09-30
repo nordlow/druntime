@@ -17,7 +17,7 @@ module gc.impl.conservative.gc;
 
 /************** Debugging ***************************/
 
-//debug = PRINTF;               // turn on printf's
+debug = PRINTF;               // turn on printf's
 //debug = COLLECT_PRINTF;       // turn on printf's
 //debug = PRINTF_TO_FILE;       // redirect printf's ouptut to file "gcx.log"
 //debug = LOGGING;              // log allocations / frees
@@ -288,6 +288,8 @@ class ConservativeGC : GC
         instance.__ctor();
 
         gc = instance;
+
+        assert(0);
     }
 
 
@@ -3451,4 +3453,3 @@ unittest
     GC.free(z);
     GC.minimize(); // release huge pool
 }
-
