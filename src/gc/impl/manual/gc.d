@@ -1,4 +1,8 @@
-/**
+/** This module contains a new attempt a conservative GC inspired by Dmitry
+ * Olshanky's post "Inside D's GC".
+ *
+ * See_Also: https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+ *
  * This module contains a minimal garbage collector implementation according to
  * published requirements.  This library is mostly intended to serve as an
  * example, but it is usable in applications which do not rely on a garbage
