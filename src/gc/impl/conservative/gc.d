@@ -17,7 +17,7 @@ module gc.impl.conservative.gc;
 
 /************** Debugging ***************************/
 
-debug = PRINTF;               // turn on printf's
+//debug = PRINTF;               // turn on printf's
 //debug = COLLECT_PRINTF;       // turn on printf's
 //debug = PRINTF_TO_FILE;       // redirect printf's ouptut to file "gcx.log"
 //debug = LOGGING;              // log allocations / frees
@@ -45,6 +45,7 @@ import gc.gcinterface;
 
 import rt.util.container.treap;
 
+import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 import core.stdc.string : memcpy, memset, memmove;
 import core.bitop;
@@ -288,8 +289,6 @@ class ConservativeGC : GC
         instance.__ctor();
 
         gc = instance;
-
-        assert(0);
     }
 
 
