@@ -38,7 +38,8 @@ import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 static import core.memory;
 
-extern (C) void onOutOfMemoryError(void* pretend_sideffect = null) @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
+extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
+    @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
 class DmitryGC : GC
 {
