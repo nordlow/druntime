@@ -143,7 +143,7 @@ class DmitryGC : GC
 
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("ENTERING: %s: \n", __FUNCTION__.ptr);
+        printf("ENTERING: %s: size=%lu bits=%u\n", __FUNCTION__.ptr, size, bits);
         BlkInfo retval;
         retval.base = malloc(size, bits, ti);
         retval.size = size;
@@ -153,7 +153,7 @@ class DmitryGC : GC
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("ENTERING: %s: \n", __FUNCTION__.ptr);
+        printf("ENTERING: %s: size=%lu bits=%u\n", __FUNCTION__.ptr, size, bits);
         void* p = cstdlib.calloc(1, size);
 
         if (size && p is null)
