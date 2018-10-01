@@ -265,13 +265,13 @@ class DmitryGC : GC
 
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
-        printf("ENTERING: %s\n", __FUNCTION__.ptr);
+        printf("ENTERING: %s: p=%p, sz=%lu\n", __FUNCTION__.ptr, p, sz);
         ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
     void removeRange(void* p) nothrow @nogc
     {
-        printf("ENTERING: %s\n", __FUNCTION__.ptr);
+        printf("ENTERING: %s: p=%p\n", __FUNCTION__.ptr, p);
         foreach (ref r; ranges)
         {
             if (r.pbot is p)
