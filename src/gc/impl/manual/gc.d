@@ -34,7 +34,6 @@ import gc.gcinterface;
 
 import rt.util.container.array;
 
-import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 static import core.memory;
 
@@ -47,8 +46,6 @@ class ManualGC : GC
 
     static void initialize(ref GC gc)
     {
-        printf("_________at:%s\n", __FUNCTION__.ptr);
-
         import core.stdc.string;
 
         if (config.gc != "manual")
@@ -121,7 +118,6 @@ class ManualGC : GC
 
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         void* p = cstdlib.malloc(size);
 
         if (size && p is null)
@@ -131,7 +127,6 @@ class ManualGC : GC
 
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         BlkInfo retval;
         retval.base = malloc(size, bits, ti);
         retval.size = size;
@@ -141,7 +136,6 @@ class ManualGC : GC
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         void* p = cstdlib.calloc(1, size);
 
         if (size && p is null)
@@ -151,7 +145,6 @@ class ManualGC : GC
 
     void* realloc(void* p, size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         p = cstdlib.realloc(p, size);
 
         if (size && p is null)
@@ -161,19 +154,16 @@ class ManualGC : GC
 
     size_t extend(void* p, size_t minsize, size_t maxsize, const TypeInfo ti) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         return 0;
     }
 
     size_t reserve(size_t size) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         return 0;
     }
 
     void free(void* p) nothrow @nogc
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         cstdlib.free(p);
     }
 
@@ -183,7 +173,6 @@ class ManualGC : GC
      */
     void* addrOf(void* p) nothrow @nogc
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         return null;
     }
 
@@ -193,7 +182,6 @@ class ManualGC : GC
      */
     size_t sizeOf(void* p) nothrow @nogc
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         return 0;
     }
 
@@ -203,7 +191,6 @@ class ManualGC : GC
      */
     BlkInfo query(void* p) nothrow
     {
-        printf("at:%s\n", __FUNCTION__.ptr);
         return BlkInfo.init;
     }
 
