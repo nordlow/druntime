@@ -13,6 +13,7 @@
  */
 module gc.proxy;
 
+import gc.impl.dmitry.gc;
 import gc.impl.conservative.gc;
 import gc.impl.manual.gc;
 import gc.impl.proto.gc;
@@ -43,8 +44,10 @@ extern (C)
         {
             auto protoInstance = instance;
             config.initialize();
+
             ManualGC.initialize(instance);
             ConservativeGC.initialize(instance);
+            DmitryGC.initialize(instance);
 
             if (instance is protoInstance)
             {
