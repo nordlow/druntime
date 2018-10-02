@@ -8,9 +8,12 @@
  * allocator may do better to store this data separately, similar to the basic
  * GC.
  *
- * Use jemalloc sizeclasses:
- * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
- * - Use static foreach to generated pools for each size class with and without indirections.
+ * Spec:
+ * - Support thread local allocation
+ *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
+ * - Use jemalloc sizeclasses:
+ *   - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
+ *   - Use static foreach to generated pools for each size class with and without indirections.
  *
  * References:
  * - DIP 46: Region Based Memory Allocation
