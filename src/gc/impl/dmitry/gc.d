@@ -50,6 +50,8 @@
  *    https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
  * 6. GC page and block metadata storage
  *    https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org
+ * 7. Scalable memory allocation using jemalloc
+ *    https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
