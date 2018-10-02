@@ -75,14 +75,22 @@ extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
 
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
+/// Bytesizes for different classes of pools.
 static immutable sizeclasses = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 debug = PRINTF;
 
+struct Store
+{
+    Array!Root roots;
+    Array!Range ranges;
+}
+
+Store localStore;               // thread local store
+
 class DmitryGC : GC
 {
-    __gshared Array!Root roots;
-    __gshared Array!Range ranges;
+    __gshared Store globalStore;
 
     static void initialize(ref GC gc)
     {
@@ -266,18 +274,18 @@ class DmitryGC : GC
     void addRoot(void* p) nothrow @nogc
     {
         printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        roots.insertBack(Root(p));
+        globalStore.roots.insertBack(Root(p));
     }
 
     void removeRoot(void* p) nothrow @nogc
     {
         printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; roots)
+        foreach (ref r; globalStore.roots)
         {
             if (r is p)
             {
-                r = roots.back;
-                roots.popBack();
+                r = globalStore.roots.back;
+                globalStore.roots.popBack();
                 return;
             }
         }
@@ -293,7 +301,7 @@ class DmitryGC : GC
     private int rootsApply(scope int delegate(ref Root) nothrow dg)
     {
         printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; roots)
+        foreach (ref r; globalStore.roots)
         {
             if (auto result = dg(r))
                 return result;
@@ -304,18 +312,18 @@ class DmitryGC : GC
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
         printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
-        ranges.insertBack(Range(p, p + sz, cast() ti));
+        globalStore.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
     void removeRange(void* p) nothrow @nogc
     {
         printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; ranges)
+        foreach (ref r; globalStore.ranges)
         {
             if (r.pbot is p)
             {
-                r = ranges.back;
-                ranges.popBack();
+                r = globalStore.ranges.back;
+                globalStore.ranges.popBack();
                 return;
             }
         }
@@ -331,7 +339,7 @@ class DmitryGC : GC
     private int rangesApply(scope int delegate(ref Range) nothrow dg)
     {
         printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; ranges)
+        foreach (ref r; globalStore.ranges)
         {
             if (auto result = dg(r))
                 return result;
