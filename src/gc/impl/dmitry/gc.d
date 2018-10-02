@@ -10,13 +10,6 @@
  * - DIP 46: Region Based Memory Allocation
  *   - See_Also: https://wiki.dlang.org/DIP46
  *
- * This module contains a minimal garbage collector implementation according to
- * published requirements.  This library is mostly intended to serve as an
- * example, but it is usable in applications which do not rely on a garbage
- * collector to clean up memory (ie. when dynamic array resizing is not used,
- * and all memory allocated with 'new' is freed deterministically with
- * 'delete').
- *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
  * rt_finalize on a non-object block can result in an access violation.  In the
@@ -24,12 +17,12 @@
  * allocator may do better to store this data separately, similar to the basic
  * GC.
  *
- * Copyright: Copyright Sean Kelly 2005 - 2016.
+ * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
  * Authors:   Sean Kelly
  */
 
-/*          Copyright Sean Kelly 2005 - 2016.
+/*          Copyright Per Nordlöw 2018 - .
  * Distributed under the Boost Software License, Version 1.0.
  *    (See accompanying file LICENSE or copy at
  *          http://www.boost.org/LICENSE_1_0.txt)
