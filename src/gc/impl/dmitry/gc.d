@@ -8,6 +8,10 @@
  * allocator may do better to store this data separately, similar to the basic
  * GC.
  *
+ * Use jemalloc sizeclasses:
+ * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
+ * - Use static foreach to generated pools for each size class with and without indirections.
+ *
  * References:
  * - DIP 46: Region Based Memory Allocation
  *   https://wiki.dlang.org/DIP46
@@ -18,11 +22,8 @@
  * - Thread GC non "stop-the-world"
  *   https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org
  * - Conservative GC: Is It Really That Bad?
+ *   https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/
  *   https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
- *
- * Use jemalloc sizeclasses:
- * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
- * - Use static foreach to generated pools for each size class with and without indirections.
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
