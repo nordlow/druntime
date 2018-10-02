@@ -9,11 +9,16 @@
  * GC.
  *
  * Spec:
- * - Support thread local allocation
+ * - Support lock-free thread local allocation in globally allocated pools (static foreach generated)
  *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
- * - Use jemalloc sizeclasses:
- *   - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
+ *   - And later automaitclly
+ * - Use jemalloc `sizeclasses`:
+ *   - Add overloads of malloc and qalloc for `sizeclasses`.
  *   - Use static foreach to generated pools for each size class with and without indirections.
+ * - Calculate sizeclass at compile-time using next power of 2 of `T.sizeof` for
+ *   calls to `new T()` and feed into overloads of `malloc()`, `calloc()`, `realloc()` etc.
+ * - Use `static foreach` when possible to generate, initialize and process
+ *   global and thead-local pools of different sizeclasses.
  *
  * References:
  * - DIP 46: Region Based Memory Allocation
@@ -53,6 +58,8 @@ extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
+
+static immutable sizeclasses = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 debug = PRINTF;
 
