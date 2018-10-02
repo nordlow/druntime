@@ -12,7 +12,7 @@
  *
  * - Support lock-free thread local allocation in separate pools (static foreach generated)
  *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
- *   - And later automaitclly
+ *   - And later automatically inferred by the compiler.
  *
  * - Use jemalloc `sizeclasses`:
  *   - Add overloads of malloc and qalloc for `sizeclasses`.
