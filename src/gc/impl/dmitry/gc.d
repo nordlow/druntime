@@ -14,11 +14,11 @@
  *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
  *   - And later automatically inferred by the compiler.
  *
- * - Use jemalloc `sizeclasses`:
+ * - Use jemalloc `size classes`:
  *   - Add overloads of malloc and qalloc for `sizeclasses`.
  *   - Use static foreach to generated pools for each size class with and without indirections.
  *
- * - Calculate sizeclass at compile-time using next power of 2 of `T.sizeof` for
+ * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
  *   calls to `new T()` and feed into `N` size-dependent overloads of
  *   `mallocN()`, `callocN()`, `reallocN()` etc.
  *
@@ -27,7 +27,7 @@
  *   (for instance phobos-next open_hashmap_or_hashset.c)
  *
  * - Use `static foreach` when possible to generate, initialize and process
- *   global and thead-local pools of different sizeclasses.
+ *   global and thead-local pools of different size classes.
  *
  * - Add run-time information for implicit (by compiler) and explicit (by
  *   developer in library) casting from mutable to `immutable` and, in turn,
@@ -48,6 +48,8 @@
  * 5. Conservative GC: Is It Really That Bad?
  *    https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/
  *    https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
+ * 6. GC page and block metadata storage
+ *    https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
@@ -79,6 +81,11 @@ enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 static immutable sizeclasses = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 debug = PRINTF;
+
+static foreach (sizeclass; sizeclasses)
+{
+    // create pool of
+}
 
 struct Store
 {
