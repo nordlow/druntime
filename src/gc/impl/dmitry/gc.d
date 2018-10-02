@@ -1,25 +1,28 @@
 /** This module contains a new attempt a conservative GC inspired by Dmitry
  * Olshanky's post "Inside D's GC".
  *
- * - DIP 46: Region Based Memory Allocation
- *   - See_Also: https://wiki.dlang.org/DIP46
- *
- * - Inside D's GC:
- *   - See_Also: https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
- *
- * - Thread-local GC:
- *   - See_Also: ?: https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
- *
- * Use jemalloc sizeclasses:
- * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
- * - Use static foreach to generated pools for each size class with and without indirections.
- *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
  * rt_finalize on a non-object block can result in an access violation.  In the
  * allocator below, this tracking is done via a leading uint bitmask.  A real
  * allocator may do better to store this data separately, similar to the basic
  * GC.
+ *
+ * References:
+ * - DIP 46: Region Based Memory Allocation
+ *   https://wiki.dlang.org/DIP46
+ * - Inside D's GC:
+ *   https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+ * - Thread-local GC:
+ *   https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
+ * - Thread GC non "stop-the-world"
+ *   https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org
+ * - Conservative GC: Is It Really That Bad?
+ *   https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
+ *
+ * Use jemalloc sizeclasses:
+ * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
+ * - Use static foreach to generated pools for each size class with and without indirections.
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
