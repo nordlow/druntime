@@ -45,7 +45,7 @@ static import core.memory;
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
-enum PAGESIZE = 4096;
+enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
 debug = PRINTF;
 
