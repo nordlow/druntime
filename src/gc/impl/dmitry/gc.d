@@ -1,5 +1,5 @@
-/** This module contains a new attempt at conservative (and later precise) GC
- * inspired by Dmitry Olshanky's post "Inside D's GC".
+/** This module contains a new attempt at a conservative (and later a precise)
+ * GC inspired by Dmitry Olshanky's post "Inside D's GC".
  *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
@@ -23,11 +23,18 @@
  *   `mallocN()`, `callocN()`, `reallocN()` etc.
  *
  * - Use hash-table from basepointer to page index to speed up page-search
-     ([1]). Use hash-table with open addressing and Fibonacci hashing
-     (for instance phobos-next open_hashmap_or_hashset.c)
+ *   ([1]). Use hash-table with open addressing and Fibonacci hashing
+ *   (for instance phobos-next open_hashmap_or_hashset.c)
  *
  * - Use `static foreach` when possible to generate, initialize and process
  *   global and thead-local pools of different sizeclasses.
+ *
+ * - Add run-time information for implicit (by compiler) and explicit (by
+ *   developer in library) casting from mutable to `immutable` and, in turn,
+ *   `shared` for isolated references.  Typically named: `__cast_immutable`,
+ *   `__cast_shared`. To make this convenient the compiler might ahead-of-time
+ *   calculate figure out if non-`shared` allocation later must be treated as
+ *   `shared` and allocated in the first place on the global GC heap.
  *
  * References:
  * 1. Inside D's GC:
