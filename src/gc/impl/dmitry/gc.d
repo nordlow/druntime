@@ -1,7 +1,14 @@
 /** This module contains a new attempt a conservative GC inspired by Dmitry
  * Olshanky's post "Inside D's GC".
  *
- * See_Also: https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+ * - Inside D's GC:
+ *   - See_Also: https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+ *
+ * - Thread-local GC:
+ *   - See_Also: ?: https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
+ *
+ * - DIP 46: Region Based Memory Allocation
+ *   - See_Also: https://wiki.dlang.org/DIP46
  *
  * This module contains a minimal garbage collector implementation according to
  * published requirements.  This library is mostly intended to serve as an
