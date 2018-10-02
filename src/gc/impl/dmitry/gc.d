@@ -10,6 +10,10 @@
  * - Thread-local GC:
  *   - See_Also: ?: https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
  *
+ * Use jemalloc sizeclasses:
+ * - Add overloads of malloc and qalloc for sizes 8, 16, 32, 64, 128, 256, 512, 1024, 2048 (page sizeos).
+ * - Use static foreach to generated pools for each size class with and without indirections.
+ *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
  * rt_finalize on a non-object block can result in an access violation.  In the
@@ -41,6 +45,8 @@ static import core.memory;
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
+enum PAGESIZE = 4096;
+
 debug = PRINTF;
 
 class DmitryGC : GC
@@ -50,7 +56,7 @@ class DmitryGC : GC
 
     static void initialize(ref GC gc)
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        printf("### %s()\n", __FUNCTION__.ptr);
 
         import core.stdc.string;
 
