@@ -1,14 +1,14 @@
 /** This module contains a new attempt a conservative GC inspired by Dmitry
  * Olshanky's post "Inside D's GC".
  *
+ * - DIP 46: Region Based Memory Allocation
+ *   - See_Also: https://wiki.dlang.org/DIP46
+ *
  * - Inside D's GC:
  *   - See_Also: https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
  *
  * - Thread-local GC:
  *   - See_Also: ?: https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
- *
- * - DIP 46: Region Based Memory Allocation
- *   - See_Also: https://wiki.dlang.org/DIP46
  *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
