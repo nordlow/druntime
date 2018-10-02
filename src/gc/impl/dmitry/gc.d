@@ -1,5 +1,5 @@
-/** This module contains a new attempt a conservative GC inspired by Dmitry
- * Olshanky's post "Inside D's GC".
+/** This module contains a new attempt at conservative (and later precise) GC
+ * inspired by Dmitry Olshanky's post "Inside D's GC".
  *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
@@ -9,29 +9,36 @@
  * GC.
  *
  * Spec:
+ *
  * - Support lock-free thread local allocation in globally allocated pools (static foreach generated)
  *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
  *   - And later automaitclly
+ *
  * - Use jemalloc `sizeclasses`:
  *   - Add overloads of malloc and qalloc for `sizeclasses`.
  *   - Use static foreach to generated pools for each size class with and without indirections.
+ *
  * - Calculate sizeclass at compile-time using next power of 2 of `T.sizeof` for
- *   calls to `new T()` and feed into overloads of `malloc()`, `calloc()`, `realloc()` etc.
+ *   calls to `new T()` and feed into `N` size-dependent overloads of
+ *   `mallocN()`, `callocN()`, `reallocN()` etc.
+ *
+ * - Use hash-table from base pointer to page index to speed up page-search ([1])
+ *
  * - Use `static foreach` when possible to generate, initialize and process
  *   global and thead-local pools of different sizeclasses.
  *
  * References:
- * - DIP 46: Region Based Memory Allocation
- *   https://wiki.dlang.org/DIP46
- * - Inside D's GC:
- *   https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
- * - Thread-local GC:
- *   https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
- * - Thread GC non "stop-the-world"
- *   https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org
- * - Conservative GC: Is It Really That Bad?
- *   https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/
- *   https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
+ * 1. Inside D's GC:
+ *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+ * 2. DIP 46: Region Based Memory Allocation
+ *    https://wiki.dlang.org/DIP46
+ * 3. Thread-local GC:
+ *    https://forum.dlang.org/thread/xiaxgllobsiiuttavivb@forum.dlang.org
+ * 4. Thread GC non "stop-the-world"
+ *    https://forum.dlang.org/post/dnxgbumzenupviqymhrg@forum.dlang.org
+ * 5. Conservative GC: Is It Really That Bad?
+ *    https://www.excelsiorjet.com/blog/articles/conservative-gc-is-it-really-that-bad/
+ *    https://forum.dlang.org/thread/qperkcrrngfsbpbumydc@forum.dlang.org
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
