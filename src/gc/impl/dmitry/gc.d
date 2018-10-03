@@ -48,7 +48,8 @@
  * - Key-Question:
  *   - Should slot occupancy status
  *     1. be explicitly stored in a bitarray and allocated in conjunction with pages somehow (more performant for dense representations)
- *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data)
+ *        This requires this bitarray to be dynamically expanded and deleted in-place when pages are removed
+ *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data) and keep some extra
  *
  * References:
  * 1. Inside D's GC:
