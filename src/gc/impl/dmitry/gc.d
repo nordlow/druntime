@@ -152,6 +152,20 @@ if (sizeClass >= sizeClasses[0])
     }
 }
 
+struct SmallArena(bool pointerFlag)
+{
+    static foreach (sizeClass; sizeClasses)
+    {
+        mixin(`SmallPool!(sizeClass, pointerFlag) pool` ~ sizeClass.stringof ~ `;`);
+    }
+}
+
+@safe pure nothrow @nogc unittest
+{
+    SmallArena!(false) valueArena;
+    SmallArena!(false) pointerArena;
+}
+
 struct Store
 {
     Array!Root roots;
