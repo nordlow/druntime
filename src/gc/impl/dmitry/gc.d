@@ -152,8 +152,8 @@ if (sizeClass >= sizeClasses[0])
     }
 }
 
-/// Arena of all small pools.
-struct SmallArena
+/// All small pools.
+struct SmallPools
 {
     static foreach (sizeClass; sizeClasses)
     {
@@ -164,8 +164,8 @@ struct SmallArena
 
 @safe pure nothrow @nogc unittest
 {
-    SmallArena smallArena;
-    pragma(msg, smallArena.sizeof);
+    SmallPools x;
+    pragma(msg, x.sizeof);
 }
 
 struct Store
