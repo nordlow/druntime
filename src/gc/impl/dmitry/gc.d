@@ -152,7 +152,7 @@ if (sizeClass >= sizeClasses[0])
     }
 }
 
-/// Area of all small pools.
+/// Arena of all small pools.
 struct SmallArena
 {
     static foreach (sizeClass; sizeClasses)
