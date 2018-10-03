@@ -15,7 +15,7 @@
  *   - And later automatically inferred by the compiler.
  *
  * - Use jemalloc `size classes`:
- *   - Add overloads of malloc and qalloc for `sizeclasses`.
+ *   - Add overloads of malloc and qalloc for `sizeClasses`.
  *   - Use static foreach to generated pools for each size class with and without indirections.
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
@@ -78,28 +78,77 @@ import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 static import core.memory;
 
+debug = PRINTF;
+
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
-/// Bytesizes for different classes of pools.
-static immutable sizeclasses = [8,
-                                16, 16 + 8,
-                                32, 32 + 16,
-                                64, 64 + 32,
-                                128, 128 +64,
-                                256, 256 + 128,
-                                512, 512 + 256,
-                                1024, 1024 + 512,
-                                2048, 2048 + 1024,
+/// Possible sizes classes (in bytes).
+static immutable sizeClasses = [8,
+                                16, // TODO 16 + 8,
+                                32, // TODO 32 + 16,
+                                64, // TODO 64 + 32,
+                                128, // TODO 128 +64,
+                                256, // TODO 256 + 128,
+                                512, // TODO 512 + 256,
+                                1024, // TODO 1024 + 512,
+                                2048, // TODO 2048 + 1024,
                                 4096];
 
-debug = PRINTF;
-
-static foreach (sizeclass; sizeclasses)
+/// Small slot foreach slot contains `wordCount` machine words.
+struct SmallSlot(uint wordCount,
+                 bool pointerFlag)
+if (wordCount >= 1)
 {
-    // create pool of
+    void[8*wordCount] bytes;
+}
+
+@safe pure nothrow @nogc unittest
+{
+    SmallSlot!(1, false) x;
+    SmallSlot!(1, false) y;
+}
+
+/// Small page storing slots of size `sizeClass`.
+struct SmallPage(uint sizeClass,
+                 bool pointerFlag)
+if (sizeClass >= sizeClasses[0] &&
+    sizeClass % 8 == 0)
+{
+    pragma(msg, typeof(this));
+    enum wordCount = sizeClass/8;
+    enum slotCount = PAGESIZE/sizeClass;
+    SmallSlot!(wordCount, pointerFlag)[slotCount] slots;
+    static assert(slots.sizeof == PAGESIZE);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    static foreach (sizeClass; sizeClasses)
+    {
+        {
+            SmallPage!(sizeClass, false) x;
+            static assert(!__traits(compiles, { SmallPage!(sizeClass+1, false) _; }));
+            SmallPage!(sizeClass, true) y;
+        }
+    }
+}
+
+/// Small pool of pages.
+struct SmallPool(uint sizeClass)
+if (sizeClass >= sizeClasses[0])
+{
+    enum sizeClass = sizeClass;
+    this(size_t pageCount)
+    {
+    }
+}
+
+static foreach (sizeClass; sizeClasses)
+{
+    // TODO create pool of
 }
 
 struct Store
