@@ -36,6 +36,10 @@
  *   calculate figure out if non-`shared` allocation later must be treated as
  *   `shared` and allocated in the first place on the global GC heap.
  *
+ * - Mark-phase:
+ *   - For each reachable pointer `p`:
+ *     - Check if `p` is reachable
+ *
  * References:
  * 1. Inside D's GC:
  *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
@@ -80,7 +84,16 @@ extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
 /// Bytesizes for different classes of pools.
-static immutable sizeclasses = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+static immutable sizeclasses = [8,
+                                16, 16 + 8,
+                                32, 32 + 16,
+                                64, 64 + 32,
+                                128, 128 +64,
+                                256, 256 + 128,
+                                512, 512 + 256,
+                                1024, 1024 + 512,
+                                2048,
+                                4096];
 
 debug = PRINTF;
 
