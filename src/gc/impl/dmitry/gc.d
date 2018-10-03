@@ -172,6 +172,7 @@ struct Store
 {
     Array!Root roots;
     Array!Range ranges;
+    SmallPools smallPools;
 }
 
 Store localStore;               // thread local store
