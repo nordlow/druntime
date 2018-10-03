@@ -111,7 +111,7 @@ struct SmallSlot(uint wordCount)
 }
 
 /// Small page storing slots of size `sizeClass`.
-struct SmallPage(uint sizeClass, bool pointerFlag)
+struct SmallPage(uint sizeClass)
 if (sizeClass >= sizeClasses[0] &&
     sizeClass % 8 == 0)
 {
@@ -127,9 +127,9 @@ if (sizeClass >= sizeClasses[0] &&
     static foreach (sizeClass; sizeClasses)
     {
         {
-            SmallPage!(sizeClass, false) x;
-            SmallPage!(sizeClass, true) y;
-            static assert(!__traits(compiles, { SmallPage!(sizeClass+1, false) _; }));
+            SmallPage!(sizeClass) x;
+            SmallPage!(sizeClass) y;
+            static assert(!__traits(compiles, { SmallPage!(sizeClass+1) _; }));
         }
     }
 }
@@ -138,7 +138,7 @@ if (sizeClass >= sizeClasses[0] &&
 struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
-    alias Page = SmallPage!(sizeClass, pointerFlag);
+    alias Page = SmallPage!(sizeClass);
     Page* rootPage = null;
 }
 
