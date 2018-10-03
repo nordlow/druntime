@@ -128,8 +128,8 @@ if (sizeClass >= sizeClasses[0] &&
     {
         {
             SmallPage!(sizeClass, false) x;
-            static assert(!__traits(compiles, { SmallPage!(sizeClass+1, false) _; }));
             SmallPage!(sizeClass, true) y;
+            static assert(!__traits(compiles, { SmallPage!(sizeClass+1, false) _; }));
         }
     }
 }
