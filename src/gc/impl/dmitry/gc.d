@@ -152,18 +152,20 @@ if (sizeClass >= sizeClasses[0])
     }
 }
 
-struct SmallArena(bool pointerFlag)
+/// Area of all pools.
+struct SmallArena
 {
     static foreach (sizeClass; sizeClasses)
     {
-        mixin(`SmallPool!(sizeClass, pointerFlag) pool` ~ sizeClass.stringof ~ `;`);
+        mixin(`SmallPool!(sizeClass, false) valuePool` ~ sizeClass.stringof ~ `;`);
+        mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
     }
 }
 
 @safe pure nothrow @nogc unittest
 {
-    SmallArena!(false) valueArena;
-    SmallArena!(false) pointerArena;
+    SmallArena smallArena;
+    pragma(msg, smallArena.sizeof);
 }
 
 struct Store
