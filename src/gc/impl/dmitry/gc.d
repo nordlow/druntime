@@ -45,8 +45,10 @@
  *
  * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
  *
- * - Key-questions is whether we need to explicitly store slot occupancy status
- *   or not. And if so where.
+ * - Key-Question:
+ *   - Should slot occupancy status
+ *     1. be explicitly stored in a bitarray and allocated in conjunction with pages somehow (more performant for dense representations)
+ *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data)
  *
  * References:
  * 1. Inside D's GC:
