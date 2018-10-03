@@ -98,29 +98,27 @@ static immutable sizeClasses = [8,
                                 4096];
 
 /// Small slot foreach slot contains `wordCount` machine words.
-struct SmallSlot(uint wordCount,
-                 bool pointerFlag)
-if (wordCount >= 1)
+struct SmallSlot(uint wordCount)
+    if (wordCount >= 1)
 {
     void[8*wordCount] bytes;
 }
 
 @safe pure nothrow @nogc unittest
 {
-    SmallSlot!(1, false) x;
-    SmallSlot!(1, false) y;
+    SmallSlot!(1) x;
+    SmallSlot!(1) y;
 }
 
 /// Small page storing slots of size `sizeClass`.
-struct SmallPage(uint sizeClass,
-                 bool pointerFlag)
+struct SmallPage(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0] &&
     sizeClass % 8 == 0)
 {
-    pragma(msg, typeof(this));
     enum wordCount = sizeClass/8;
     enum slotCount = PAGESIZE/sizeClass;
-    SmallSlot!(wordCount, pointerFlag)[slotCount] slots;
+    alias Slot = SmallSlot!(wordCount);
+    Slot[slotCount] slots;
     static assert(slots.sizeof == PAGESIZE);
 }
 
@@ -137,18 +135,21 @@ if (sizeClass >= sizeClasses[0] &&
 }
 
 /// Small pool of pages.
-struct SmallPool(uint sizeClass)
+struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
-    enum sizeClass = sizeClass;
-    this(size_t pageCount)
-    {
-    }
+    alias Page = SmallPage!(sizeClass, pointerFlag);
+    Page* rootPage = null;
 }
 
-static foreach (sizeClass; sizeClasses)
+@safe pure nothrow @nogc unittest
 {
-    // TODO create pool of
+    static foreach (sizeClass; sizeClasses)
+    {
+        {
+            SmallPool!(sizeClass, false) x;
+        }
+    }
 }
 
 struct Store
