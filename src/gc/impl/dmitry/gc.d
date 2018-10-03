@@ -67,6 +67,8 @@
  *    https://forum.dlang.org/thread/fvmiudfposhggpjgtluf@forum.dlang.org
  * 7. Scalable memory allocation using jemalloc
  *    https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
+ * 8. How does jemalloc work? What are the benefits?
+ *    https://stackoverflow.com/questions/1624726/how-does-jemalloc-work-what-are-the-benefits
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
