@@ -45,6 +45,9 @@
  *
  * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
  *
+ * - Key-questions is whether we need to explicitly store slot occupancy status
+ *   or not. And if so where.
+ *
  * References:
  * 1. Inside D's GC:
  *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
