@@ -40,6 +40,11 @@
  *   - For each reachable pointer `p`:
  *     - Check if `p` is reachable
  *
+ * - Use sizeClass = nextPow2(size-1) given size => 0
+ * - Use `os_mem_map` and `os_mem_unmap`
+ *
+ * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
+ *
  * References:
  * 1. Inside D's GC:
  *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
@@ -97,9 +102,28 @@ static immutable sizeClasses = [8,
                                 2048, // TODO 2048 + 1024,
                                 4096];
 
+/// Ceiling to closest to size class of `sz`.
+size_t sizeClassCeil(size_t sz) @safe pure nothrow @nogc
+{
+    return nextPow2(sz - 1);
+}
+
+@safe pure nothrow @nogc unittest
+{
+    assert(sizeClassCeil(1) == 1);
+    assert(sizeClassCeil(2) == 2);
+    assert(sizeClassCeil(3) == 4);
+    assert(sizeClassCeil(4) == 4);
+    assert(sizeClassCeil(5) == 8);
+    assert(sizeClassCeil(6) == 8);
+    assert(sizeClassCeil(7) == 8);
+    assert(sizeClassCeil(8) == 8);
+    assert(sizeClassCeil(9) == 16);
+}
+
 /// Small slot foreach slot contains `wordCount` machine words.
 struct SmallSlot(uint wordCount)
-    if (wordCount >= 1)
+if (wordCount >= 1)
 {
     void[8*wordCount] bytes;
 }
@@ -172,24 +196,23 @@ struct Store
 {
     Array!Root roots;
     Array!Range ranges;
-    SmallPools smallPools;
 }
 
-Store localStore;               // thread local store
+SmallPools localSmallPools;     // TODO does thread local
 
 class DmitryGC : GC
 {
     __gshared Store globalStore;
+    __gshared SmallPools globalSmallPools;
 
     static void initialize(ref GC gc)
     {
         printf("### %s()\n", __FUNCTION__.ptr);
 
-        import core.stdc.string;
-
         if (config.gc != "dmitry")
             return;
 
+        import core.stdc.string;
         auto p = cstdlib.malloc(__traits(classInstanceSize, DmitryGC));
         if (!p)
             onOutOfMemoryError();
@@ -445,4 +468,31 @@ class DmitryGC : GC
     {
         return false;
     }
+}
+
+private enum PowType
+{
+    floor,
+    ceil
+}
+
+private T powIntegralImpl(PowType type, T)(T val)
+{
+    pragma(inline, true);
+    import core.bitop : bsr;
+    if (val == 0 || (type == PowType.ceil && (val > T.max / 2 || val == T.min)))
+    {
+        return 0;
+    }
+    else
+    {
+        return (T(1) << bsr(val) + type);
+    }
+}
+
+private T nextPow2(T)(const T val)
+if (is(T == size_t) ||
+    is(T == uint))
+{
+    return powIntegralImpl!(PowType.ceil)(val);
 }
