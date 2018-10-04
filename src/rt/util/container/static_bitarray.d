@@ -55,6 +55,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
 
     /** Get number of bits set. */
+    version(none)               // TODO activate when needed
     size_t countOnes() const
     {
         typeof(return) n = 0;
