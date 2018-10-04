@@ -7,12 +7,12 @@ static import common = rt.util.container.common;
 
 struct StaticBitArray(uint bitCount, Block = size_t)
 {
+    import core.bitop : bt, bts, btr;
+
     @safe pure @nogc:
 
     /** Number of bits. */
     enum length = bitCount;
-
-    import core.bitop : bt, bts, btr;
 
     /** Number of bits per `Block`. */
     enum bitsPerBlock = 8*Block.sizeof;
