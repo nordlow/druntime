@@ -9,6 +9,8 @@ import core.exception : onOutOfMemoryErrorNoGC;
 
 struct StaticBitArray(uint bitCount, Block = size_t)
 {
+    @safe:
+
     /** Number of bits. */
     enum length = bitCount;
 
