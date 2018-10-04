@@ -171,9 +171,10 @@ if (sizeClass >= sizeClasses[0] &&
 
 struct SmallPageInfo(uint sizeClass)
 {
+    pragma(msg, this.stringof, ": ", this.sizeof);
     SmallPage!(sizeClass)* pagePtr;
     enum slotCount = PAGESIZE/sizeClass;
-    // bit i indicates if slot i in *pagePtr is currently has a defined value
+    // bit i indicates if slot i in `*pagePtr` currently has a defined value
     StaticBitArray!(slotCount) slotUsageBits;
 }
 
