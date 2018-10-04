@@ -23,6 +23,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     /** Reset all bits (to zero). */
     void reset() nothrow
     {
+        pragma(inline, true);
         _blocks[] = 0;          // TODO is this the fastest way?
     }
 
@@ -56,6 +57,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     // TODO find index of first zero bit
     size_t indexOfFirst1() const nothrow
     {
+        pragma(inline, true);
         return 0;               // TODO
     }
 
