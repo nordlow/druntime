@@ -30,29 +30,29 @@ struct StaticBitArray(uint bitCount, Block = size_t)
         _blocks[] = 0;          // TODO is this the fastest way?
     }
 
-    /** Gets the $(D i)'th bit. */
-    bool opIndex(size_t i) const @trusted
+    /** Gets the $(D idx)'th bit. */
+    bool opIndex(size_t idx) const @trusted
     in
     {
-        assert(i < length);     // TODO nothrow or not?
+        assert(idx < length);     // TODO nothrow or not?
     }
     body
     {
         pragma(inline, true);
-        return cast(bool)bt(_blocks.ptr, i);
+        return cast(bool)bt(_blocks.ptr, idx);
     }
 
-    /** Sets the $(D i)'th bit. */
-    bool opIndexAssign(bool b, size_t i) @trusted
+    /** Sets the $(D idx)'th bit. */
+    bool opIndexAssign(bool b, size_t idx) @trusted
     {
         pragma(inline, true);
         if (b)
         {
-            bts(_blocks.ptr, cast(size_t)i);
+            bts(_blocks.ptr, cast(size_t)idx);
         }
         else
         {
-            btr(_blocks.ptr, cast(size_t)i);
+            btr(_blocks.ptr, cast(size_t)idx);
         }
         return b;
     }
