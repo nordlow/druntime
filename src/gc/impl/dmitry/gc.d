@@ -182,7 +182,7 @@ struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
-    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `PagedDynamicArray`
+    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
 }
 
 @safe pure nothrow @nogc unittest
