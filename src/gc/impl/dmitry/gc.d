@@ -184,9 +184,11 @@ if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
     SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
+    size_t indexOfFirstFreePage = 0;
     void* reserveNextFreeSlot()
     {
         assert(0, "TODO implement");
+        assert(0, "TODO increase indexOfFirstFreePage by searching pageInfoArray");
     }
 }
 
@@ -246,8 +248,6 @@ struct Store
     Array!Root roots;
     Array!Range ranges;
 }
-
-SmallPools localSmallPools;     // TODO does thread local
 
 class DmitryGC : GC
 {
