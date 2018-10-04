@@ -184,8 +184,6 @@ struct SmallPageInfo(uint sizeClass)
 struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
-    alias Page = SmallPage!(sizeClass);
-
     void* reserveAndGetNextFreeSlot()
     {
         assert(0, "TODO implement");
