@@ -184,7 +184,7 @@ struct SmallPageInfo(uint sizeClass)
 struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
-    void* reserveAndGetNextFreeSlot()
+    void* alloc() @trusted pure nothrow @nogc
     {
         const needNewPage = indexOfFirstFreePage == pageInfos.length;
         if (needNewPage)
@@ -228,7 +228,7 @@ struct SmallPools
             static foreach (const sizeClass; sizeClasses)
             {
             case sizeClass:
-                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.reserveAndGetNextFreeSlot();`);
+                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.alloc();`);
                 break top;
             }
         default:
