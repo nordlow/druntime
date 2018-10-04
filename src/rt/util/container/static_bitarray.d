@@ -62,10 +62,10 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     private Block[blockCount] _blocks;
 }
 
-@safe pure @nogc:
+@safe pure nothrow @nogc:
 
 ///
-nothrow unittest
+unittest
 {
     StaticBitArray!63 x;
 
