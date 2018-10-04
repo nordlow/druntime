@@ -192,14 +192,14 @@ if (sizeClass >= sizeClasses[0])
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
             pageInfos.insertBack(SmallPageInfo!sizeClass(pagePtr));
         }
-
-        pageInfos[0].slotUsageBits[0] = true;
-        return pageInfos[0].pagePtr;
-        return pageInfos[indexOfFirstFreePage].page + sizeClass*indexOfFirstFreeSlotb;
+        assert(0, "Check if ");
+        pageInfos[indexOfFirstFreePage].slotUsageBits[0] = true; // mark first slot
+        return pageInfos[0].pagePtr + indexOfFirstFreePage*sizeClass;
     }
 
     Array!(SmallPageInfo!sizeClass) pageInfos;
     size_t indexOfFirstFreePage = 0;
+    size_t indexOfFirstFreeSlot = 0;
 }
 
 @safe pure nothrow @nogc unittest
