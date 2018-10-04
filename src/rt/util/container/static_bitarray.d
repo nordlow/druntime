@@ -5,8 +5,6 @@ module rt.util.container.static_bitarray;
 
 static import common = rt.util.container.common;
 
-import core.exception : onOutOfMemoryErrorNoGC;
-
 struct StaticBitArray(uint bitCount, Block = size_t)
 {
     @safe pure @nogc:
