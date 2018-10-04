@@ -172,7 +172,8 @@ if (sizeClass >= sizeClasses[0] &&
 
 struct SmallPageInfo(uint sizeClass)
 {
-    SmallPage!(sizeClass)* pagePtr;
+    alias Page = SmallPage!(sizeClass);
+    Page* pagePtr;
     enum slotCount = PAGESIZE/sizeClass;
 
     // bit i indicates if slot i in `*pagePtr` currently has a defined value
