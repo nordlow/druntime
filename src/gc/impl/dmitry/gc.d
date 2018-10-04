@@ -153,6 +153,7 @@ if (sizeClass >= sizeClasses[0] &&
     enum wordCount = sizeClass/8;
     enum slotCount = PAGESIZE/sizeClass;
     alias Slot = SmallSlot!(wordCount);
+
     Slot[slotCount] slots;
     static assert(slots.sizeof == PAGESIZE);
 }
@@ -171,9 +172,9 @@ if (sizeClass >= sizeClasses[0] &&
 
 struct SmallPageInfo(uint sizeClass)
 {
-    pragma(msg, this.stringof, ": ", this.sizeof);
     SmallPage!(sizeClass)* pagePtr;
     enum slotCount = PAGESIZE/sizeClass;
+
     // bit i indicates if slot i in `*pagePtr` currently has a defined value
     StaticBitArray!(slotCount) slotUsageBits;
 }
@@ -183,13 +184,15 @@ struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
-    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
-    size_t indexOfFirstFreePage = 0;
-    void* reserveNextFreeSlot()
+
+    void* reserveAndGetNextFreeSlot()
     {
         assert(0, "TODO implement");
         assert(0, "TODO increase indexOfFirstFreePage by searching pageInfoArray");
     }
+
+    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
+    size_t indexOfFirstFreePage = 0;
 }
 
 @safe pure nothrow @nogc unittest
@@ -217,7 +220,7 @@ struct SmallPools
             static foreach (const sizeClass; sizeClasses)
             {
             case sizeClass:
-                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.reserveNextFreeSlot();`);
+                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.reserveAndGetNextFreeSlot();`);
                 break top;
             }
         default:
