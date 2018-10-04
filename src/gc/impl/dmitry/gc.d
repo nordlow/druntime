@@ -214,7 +214,6 @@ struct SmallPools
         BlkInfo retval = void;
 
         const adjustedSize = sizeClassCeil(size);
-
     top:
         switch (adjustedSize)
         {
