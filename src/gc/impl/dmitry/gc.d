@@ -184,6 +184,10 @@ if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
     SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
+    void* reserveNextFreeSlot()
+    {
+        return null;
+    }
 }
 
 @safe pure nothrow @nogc unittest
@@ -199,6 +203,32 @@ if (sizeClass >= sizeClasses[0])
 /// All small pools.
 struct SmallPools
 {
+    BlkInfo qalloc(size_t size, uint bits) nothrow
+    {
+        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+
+        BlkInfo retval = void;
+
+        const adjustedSize = sizeClassCeil(size);
+        top: switch (adjustedSize)
+        {
+            static foreach (const sizeClass; sizeClasses)
+            {
+            case sizeClass:
+                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.reserveNextFreeSlot();`);
+                break top;
+            }
+        default:
+            retval.base = null;
+            break;
+        }
+
+        retval.size = size;
+        retval.attr = bits;
+
+        return retval;
+    }
+private:
     static foreach (sizeClass; sizeClasses)
     {
         mixin(`SmallPool!(sizeClass, false) valuePool` ~ sizeClass.stringof ~ `;`);
