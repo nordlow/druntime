@@ -186,7 +186,7 @@ if (sizeClass >= sizeClasses[0])
     SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
     void* reserveNextFreeSlot()
     {
-        return null;
+        assert(0, "TODO implement");
     }
 }
 
