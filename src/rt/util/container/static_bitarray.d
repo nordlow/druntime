@@ -12,7 +12,6 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     /** Number of bits. */
     enum length = bitCount;
 
-    pragma(msg, bitCount, " ", this.sizeof);
     import core.bitop : bt, bts, btr;
 
     /** Number of bits per `Block`. */
