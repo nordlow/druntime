@@ -178,7 +178,7 @@ struct SmallPageTable(uint sizeClass)
     enum slotCount = PAGESIZE/sizeClass;
 
     // bit i indicates if slot i in `*pagePtr` currently has a defined value
-    StaticBitArray!(slotCount) slotUsageBits;
+    StaticBitArray!(slotCount) slotUsages;
 }
 
 /// Small pool of pages.
@@ -195,13 +195,13 @@ if (sizeClass >= sizeClasses[0])
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
-            pageTables[indexOfFirstFreePage].slotUsageBits[0] = true; // mark slot
+            pageTables[indexOfFirstFreePage].slotUsages[0] = true; // mark slot
             indexOfFirstFreeSlot = 1;
             return pagePtr;     // beginning of page
         }
         else
         {
-            pageTables[indexOfFirstFreePage].slotUsageBits[indexOfFirstFreeSlot] = true; // mark slot
+            pageTables[indexOfFirstFreePage].slotUsages[indexOfFirstFreeSlot] = true; // mark slot
             auto slotPtr = pageTables[indexOfFirstFreePage].pagePtr + indexOfFirstFreeSlot * sizeClass;
             indexOfFirstFreeSlot = 1;
             return slotPtr;
