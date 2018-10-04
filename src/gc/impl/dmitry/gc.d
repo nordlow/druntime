@@ -186,24 +186,29 @@ struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
+
     void* alloc() @trusted // pure nothrow @nogc
     {
-        const needNewPage = indexOfFirstFreePage == pageInfos.length;
+        const needNewPage = indexOfFirstFreePage == pageTables.length;
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
-            pageInfos.insertBack(SmallPageTable!sizeClass(pagePtr));
+            pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
-            pageInfos[indexOfFirstFreePage].slotUsageBits[0] = true; // mark first slot
+            pageTables[indexOfFirstFreePage].slotUsageBits[0] = true; // mark slot
             indexOfFirstFreeSlot = 1;
-            return pageInfos[indexOfFirstFreePage].pagePtr;
+            return pagePtr;     // beginning of page
         }
         else
         {
+            pageTables[indexOfFirstFreePage].slotUsageBits[indexOfFirstFreeSlot] = true; // mark slot
+            auto offset = pageTables[indexOfFirstFreePage].pagePtr + indexOfFirstFreeSlot * sizeClass;
+            indexOfFirstFreeSlot = 1;
+            return offset;
         }
     }
 
-    Array!(SmallPageTable!sizeClass) pageInfos;
+    Array!(SmallPageTable!sizeClass) pageTables;
     size_t indexOfFirstFreePage = 0;
     size_t indexOfFirstFreeSlot = 0;
 }
