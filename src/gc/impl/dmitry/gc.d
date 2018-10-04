@@ -186,11 +186,19 @@ if (sizeClass >= sizeClasses[0])
 {
     void* reserveAndGetNextFreeSlot()
     {
-        assert(0, "TODO implement");
-        assert(0, "TODO increase indexOfFirstFreePage by searching pageInfoArray");
+        const needNewPage = indexOfFirstFreePage == pageInfos.length;
+        if (needNewPage)
+        {
+            Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
+            pageInfos.insertBack(SmallPageInfo!sizeClass(pagePtr));
+        }
+
+        pageInfos[0].slotUsageBits[0] = true;
+        return pageInfos[0].pagePtr;
+        return pageInfos[indexOfFirstFreePage].page + sizeClass*indexOfFirstFreeSlotb;
     }
 
-    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `Array` allocated on page boundaries
+    Array!(SmallPageInfo!sizeClass) pageInfos;
     size_t indexOfFirstFreePage = 0;
 }
 
