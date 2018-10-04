@@ -88,6 +88,7 @@ import gc.config;
 import gc.gcinterface;
 
 import rt.util.container.array;
+import rt.util.container.static_bitarray;
 
 import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
@@ -207,31 +208,6 @@ struct SmallPools
 @safe pure nothrow @nogc unittest
 {
     SmallPools x;
-}
-
-struct StaticBitArray(uint bitCount, Block = size_t)
-{
-    /** Number of bits. */
-    enum length = bitCount;
-
-    pragma(msg, bitCount, " ", this.sizeof);
-    import core.bitop : bt, bts, btr;
-
-    /** Number of bits per `Block`. */
-    enum bitsPerBlock = 8*Block.sizeof;
-
-    /** Number of `Block`s. */
-    enum blockCount = (bitCount + (bitsPerBlock-1)) / bitsPerBlock;
-
-    /** Reset all bits (to zero). */
-    void reset()()
-    {
-        pragma(inline, true);
-        _blocks[] = 0;          // TODO is this fastest way?
-    }
-
-    /** Data stored as `Block`s. */
-    private Block[blockCount] _blocks;
 }
 
 struct Store
