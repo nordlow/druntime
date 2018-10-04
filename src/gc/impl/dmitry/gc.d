@@ -214,7 +214,7 @@ struct SmallPool(uint sizeClass, bool pointerFlag)
     size_t indexOfFirstFreeSlot = 0;
 }
 
-// @safe pure nothrow @nogc
+// TODO @safe pure nothrow @nogc
 unittest
 {
     static foreach (sizeClass; sizeClasses)
@@ -263,7 +263,7 @@ private:
 }
 pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
-// @safe pure nothrow @nogc
+// TODO @safe pure nothrow @nogc
 unittest
 {
     SmallPools x;
