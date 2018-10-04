@@ -58,6 +58,10 @@ struct StaticBitArray(uint bitCount, Block = size_t)
     }
 
     // TODO find index of first zero bit
+    size_t indexOfFirst1() const nothrow
+    {
+        return 0;               // TODO
+    }
 
     private Block[blockCount] _blocks;
 }
