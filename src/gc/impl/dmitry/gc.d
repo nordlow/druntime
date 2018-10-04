@@ -84,6 +84,7 @@
  */
 module gc.impl.dmitry.gc;
 
+import gc.os : os_mem_map, os_mem_unmap;
 import gc.config;
 import gc.gcinterface;
 
@@ -170,7 +171,7 @@ if (sizeClass >= sizeClasses[0] &&
     }
 }
 
-struct SmallPageInfo(uint sizeClass)
+struct SmallPageTable(uint sizeClass)
 {
     alias Page = SmallPage!(sizeClass);
     Page* pagePtr;
@@ -184,25 +185,31 @@ struct SmallPageInfo(uint sizeClass)
 struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
-    void* alloc() @trusted pure nothrow @nogc
+    alias Page = SmallPage!(sizeClass);
+    void* alloc() @trusted // pure nothrow @nogc
     {
         const needNewPage = indexOfFirstFreePage == pageInfos.length;
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
-            pageInfos.insertBack(SmallPageInfo!sizeClass(pagePtr));
+            pageInfos.insertBack(SmallPageTable!sizeClass(pagePtr));
+
+            pageInfos[indexOfFirstFreePage].slotUsageBits[0] = true; // mark first slot
+            indexOfFirstFreeSlot = 1;
+            return pageInfos[indexOfFirstFreePage].pagePtr;
         }
-        assert(0, "Check if ");
-        pageInfos[indexOfFirstFreePage].slotUsageBits[0] = true; // mark first slot
-        return pageInfos[0].pagePtr + indexOfFirstFreePage*sizeClass;
+        else
+        {
+        }
     }
 
-    Array!(SmallPageInfo!sizeClass) pageInfos;
+    Array!(SmallPageTable!sizeClass) pageInfos;
     size_t indexOfFirstFreePage = 0;
     size_t indexOfFirstFreeSlot = 0;
 }
 
-@safe pure nothrow @nogc unittest
+// @safe pure nothrow @nogc
+unittest
 {
     static foreach (sizeClass; sizeClasses)
     {
