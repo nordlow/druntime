@@ -68,12 +68,15 @@ struct StaticBitArray(uint bitCount, Block = size_t)
 ///
 nothrow unittest
 {
-    StaticBitArray!2 bs;
+    StaticBitArray!2 x;
 
-    bs[0] = true;
-    assert(bs[0]);
-    assert(!bs[1]);
+    x[0] = true;
+    assert(x[0]);
+    assert(!x[1]);
 
-    bs[1] = true;
-    assert(bs[1]);
+    x[1] = true;
+    assert(x[1]);
+
+    x[1] = false;
+    assert(!x[1]);
 }
