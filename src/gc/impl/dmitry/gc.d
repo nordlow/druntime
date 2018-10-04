@@ -69,6 +69,8 @@
  *    https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
  * 8. How does jemalloc work? What are the benefits?
  *    https://stackoverflow.com/questions/1624726/how-does-jemalloc-work-what-are-the-benefits
+ * 9. What are the advantages and disadvantages of having mark bits together and separate for Garbage Collection
+ *    https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
