@@ -168,12 +168,20 @@ if (sizeClass >= sizeClasses[0] &&
     }
 }
 
+struct SmallPageInfo(uint sizeClass)
+{
+    SmallPage!(sizeClass)* pagePtr;
+    enum slotCount = PAGESIZE/sizeClass;
+    // bit i indicates if slot i in *pagePtr is currently has a defined value
+    StaticBitArray!(slotCount) slotUsageBits;
+}
+
 /// Small pool of pages.
 struct SmallPool(uint sizeClass, bool pointerFlag)
 if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
-    Page* rootPage = null;
+    SmallPageInfo!sizeClass[] pageInfoArray; // TODO use `PagedDynamicArray`
 }
 
 @safe pure nothrow @nogc unittest
@@ -199,7 +207,31 @@ struct SmallPools
 @safe pure nothrow @nogc unittest
 {
     SmallPools x;
-    pragma(msg, x.sizeof);
+}
+
+struct StaticBitArray(uint bitCount, Block = size_t)
+{
+    /** Number of bits. */
+    enum length = bitCount;
+
+    pragma(msg, bitCount, " ", this.sizeof);
+    import core.bitop : bt, bts, btr;
+
+    /** Number of bits per `Block`. */
+    enum bitsPerBlock = 8*Block.sizeof;
+
+    /** Number of `Block`s. */
+    enum blockCount = (bitCount + (bitsPerBlock-1)) / bitsPerBlock;
+
+    /** Reset all bits (to zero). */
+    void reset()()
+    {
+        pragma(inline, true);
+        _blocks[] = 0;          // TODO is this fastest way?
+    }
+
+    /** Data stored as `Block`s. */
+    private Block[blockCount] _blocks;
 }
 
 struct Store
