@@ -213,7 +213,7 @@ struct SmallPools
 
         BlkInfo retval = void;
 
-        const adjustedSize = sizeClassCeil(size); // TODO move this to compile-time
+        const adjustedSize = sizeClassCeil(size); // TODO move this to compile-time and add malloc overloeads for each size class
     top:
         switch (adjustedSize)
         {
