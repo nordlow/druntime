@@ -62,6 +62,7 @@ struct StaticBitArray(uint bitCount, Block = size_t)
 
 @safe pure @nogc:
 
+///
 nothrow unittest
 {
     StaticBitArray!2 bs;
