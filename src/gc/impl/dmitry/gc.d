@@ -183,13 +183,14 @@ struct SmallPageTable(uint sizeClass)
 
 /// Small pool of pages.
 struct SmallPool(uint sizeClass, bool pointerFlag)
-if (sizeClass >= sizeClasses[0])
+    if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
 
     void* alloc() @trusted // pure nothrow @nogc
     {
-        const needNewPage = indexOfFirstFreePage == pageTables.length;
+        const needNewPage = (indexOfFirstFreePage == pageTables.length || // initial case
+                             indexOfFirstFreeSlot == Page.slotCount);
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
@@ -197,13 +198,13 @@ if (sizeClass >= sizeClasses[0])
 
             pageTables[indexOfFirstFreePage].slotUsages[0] = true; // mark slot
             indexOfFirstFreeSlot = 1;
-            return pagePtr;     // beginning of page
+            return &pagePtr.slots[0];     // beginning of page
         }
         else
         {
             pageTables[indexOfFirstFreePage].slotUsages[indexOfFirstFreeSlot] = true; // mark slot
-            auto slotPtr = pageTables[indexOfFirstFreePage].pagePtr + indexOfFirstFreeSlot * sizeClass;
-            indexOfFirstFreeSlot = 1;
+            auto slotPtr = &pageTables[indexOfFirstFreePage].pagePtr.slots[indexOfFirstFreeSlot];
+            indexOfFirstFreeSlot += 1;
             return slotPtr;
         }
     }
@@ -260,8 +261,10 @@ private:
         mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
     }
 }
+pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
-@safe pure nothrow @nogc unittest
+// @safe pure nothrow @nogc
+unittest
 {
     SmallPools x;
 }
@@ -275,7 +278,7 @@ struct Store
 class DmitryGC : GC
 {
     __gshared Store globalStore;
-    __gshared SmallPools globalSmallPools;
+    __gshared SmallPools globalSmallPools; // TODO look at gcx in conservative
 
     static void initialize(ref GC gc)
     {
