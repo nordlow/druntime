@@ -87,8 +87,8 @@ module gc.impl.dmitry.gc;
 import gc.config;
 import gc.gcinterface;
 
-import rt.util.container.array;
-import rt.util.container.static_bitarray;
+import rt.util.container.array : Array;
+import rt.util.container.static_bitarray : StaticBitArray;
 
 import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
