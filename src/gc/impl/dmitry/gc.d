@@ -202,9 +202,9 @@ if (sizeClass >= sizeClasses[0])
         else
         {
             pageTables[indexOfFirstFreePage].slotUsageBits[indexOfFirstFreeSlot] = true; // mark slot
-            auto offset = pageTables[indexOfFirstFreePage].pagePtr + indexOfFirstFreeSlot * sizeClass;
+            auto slotPtr = pageTables[indexOfFirstFreePage].pagePtr + indexOfFirstFreeSlot * sizeClass;
             indexOfFirstFreeSlot = 1;
-            return offset;
+            return slotPtr;
         }
     }
 
