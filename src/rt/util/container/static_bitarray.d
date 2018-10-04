@@ -3,8 +3,6 @@
  */
 module rt.util.container.static_bitarray;
 
-static import common = rt.util.container.common;
-
 struct StaticBitArray(uint bitCount, Block = size_t)
 {
     import core.bitop : bt, bts, btr;
