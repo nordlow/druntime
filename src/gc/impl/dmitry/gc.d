@@ -187,7 +187,7 @@ if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
 
-    void* alloc() @trusted // pure nothrow @nogc
+    void* allocateNext() @trusted // pure nothrow @nogc
     {
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
@@ -239,7 +239,7 @@ struct SmallPools
             static foreach (const sizeClass; sizeClasses)
             {
             case sizeClass:
-                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.alloc();`);
+                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
                 break top;
             }
         default:
