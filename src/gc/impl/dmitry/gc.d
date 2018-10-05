@@ -261,8 +261,10 @@ struct SmallPools
 private:
     static foreach (sizeClass; sizeClasses)
     {
-        mixin(`SmallPool!(sizeClass, false) valuePool` ~ sizeClass.stringof ~ `;`);
-        mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
+        // Quote from https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+        // "Fine grained locking from the start, I see no problem with per pool locking."
+        mixin(`__gshared SmallPool!(sizeClass, false) valuePool` ~ sizeClass.stringof ~ `;`);
+        mixin(`__gshared SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
     }
 }
 
@@ -277,7 +279,7 @@ class DmitryGC : GC
     __gshared Store globalStore;
 
     // __gshared has no measureable overhead here
-    __gshared SmallPools globalSmallPools; // TODO look at gcx in conservative
+    SmallPools globalSmallPools; // TODO look at gcx in conservative
 
     static void initialize(ref GC gc)
     {
