@@ -45,7 +45,16 @@ struct PagedDynamicArray(T)
     {
         import core.checkedint : mulu;
 
-        if (newLength*T.sizeof > capacityInBytes)
+        if (newLength == 0)
+        {
+            if (_ptr != null)
+            {
+                os_mem_unmap(_ptr, capacityInBytes);
+            }
+            _ptr = null;
+            _capacityInPages = 0;
+        }
+        else if (newLength*T.sizeof > capacityInBytes)
         {
             bool overflow = false;
             const size_t reqsize = mulu(T.sizeof, newLength, overflow);
@@ -69,24 +78,14 @@ struct PagedDynamicArray(T)
                 // }
             }
 
-            auto oldptr = _ptr;
-            if (newLength != 0)
+            T* newPtr = cast(T*)os_mem_map(newCapacityInPages*PAGESIZE);
+            import core.stdc.string : memcpy;
+            if (_ptr !is null)
             {
-                _ptr = cast(T*)os_mem_map(newCapacityInPages*PAGESIZE);
-                import core.stdc.string : memcpy;
-                if (oldptr !is null)
-                {
-                    memcpy(ptr, oldptr, capacityInBytes);
-                }
+                memcpy(newPtr, _ptr, capacityInBytes);
+                os_mem_unmap(_ptr, capacityInBytes);
             }
-            else
-            {
-                _ptr = null;
-            }
-            if (oldptr != null)
-            {
-                os_mem_unmap(oldptr, capacityInBytes);
-            }
+            _ptr = newPtr;
             _capacityInPages = newCapacityInPages;
 
             // rely on mmap zeroing for us
