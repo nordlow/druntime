@@ -81,7 +81,9 @@ struct PagedDynamicArray(T)
                 if (_ptr !is null)  // if should do remap
                 {
                     version(PRINTF) printf("### %s() mremap(%p)\n", __FUNCTION__.ptr, _ptr);
-                    _ptr = cast(T*)mremap(_ptr, capacityInBytes, newCapacityInBytes, MREMAP_MAYMOVE);
+                    _ptr = cast(T*)mremap(_ptr, capacityInBytes,
+                                          newCapacityInBytes,
+                                          MREMAP_MAYMOVE);
                     goto done;
                 }
             }
