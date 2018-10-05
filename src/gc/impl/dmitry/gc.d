@@ -189,29 +189,28 @@ if (sizeClass >= sizeClasses[0])
 
     void* alloc() @trusted // pure nothrow @nogc
     {
-        const needNewPage = (indexOfFirstFreePage == pageTables.length || // initial case
-                             indexOfFirstFreeSlot == Page.slotCount);
+        const pageIndex = slotIndex / Page.slotCount;
+        const needNewPage = (slotIndex % Page.slotCount == 0);
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
-            pageTables[indexOfFirstFreePage].slotUsages[0] = true; // mark slot
-            indexOfFirstFreeSlot = 1;
+            pageTables[pageIndex].slotUsages[0] = true; // mark slot
+            slotIndex = 1;
             return &pagePtr.slots[0];     // beginning of page
         }
         else
         {
-            pageTables[indexOfFirstFreePage].slotUsages[indexOfFirstFreeSlot] = true; // mark slot
-            auto slotPtr = &pageTables[indexOfFirstFreePage].pagePtr.slots[indexOfFirstFreeSlot];
-            indexOfFirstFreeSlot += 1;
+            pageTables[pageIndex].slotUsages[slotIndex] = true; // mark slot
+            auto slotPtr = &pageTables[pageIndex].pagePtr.slots[slotIndex];
+            slotIndex += 1;
             return slotPtr;
         }
     }
 
     Array!(SmallPageTable!sizeClass) pageTables;
-    size_t indexOfFirstFreePage = 0;
-    size_t indexOfFirstFreeSlot = 0;
+    size_t slotIndex = 0;
 }
 
 // TODO @safe pure nothrow @nogc
