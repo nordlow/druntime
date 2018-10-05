@@ -235,7 +235,14 @@ struct SmallPools
         retval.size = size;
         retval.attr = bits;
 
-        const adjustedSize = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        // TODO optimize this:
+        size_t adjustedSize = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        if (adjustedSize < sizeClasses[0])
+        {
+            adjustedSize = sizeClasses[0];
+        }
+
+        // TODO calculate index of first bit set and use that in lookup table
     top:
         switch (adjustedSize)
         {
