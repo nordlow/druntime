@@ -10,7 +10,7 @@ module rt.util.container.paged_dynamic_array;
 static import common = rt.util.container.common;
 import core.stdc.stdio: printf;
 
-// version = PRINTF;
+version = PRINTF;
 
 struct PagedDynamicArray(T)
 {
@@ -154,12 +154,13 @@ struct PagedDynamicArray(T)
     void insertBack()(auto ref T val) @trusted
     {
         import core.checkedint : addu;
-        // const size_t newlength = length + 1;
-        // if (overflow)
-        // {
-        //     onOutOfMemoryErrorNoGC();
-        // }
-        length = length + 1;
+        bool overflow = false;
+        const size_t newlength = addu(length, 1, overflow);
+        if (overflow)
+        {
+            onOutOfMemoryErrorNoGC();
+        }
+        length = newlength;
         back = val;
     }
 
