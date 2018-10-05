@@ -261,12 +261,6 @@ private:
 }
 pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
-// TODO @safe pure nothrow @nogc
-unittest
-{
-    SmallPools x;
-}
-
 struct Store
 {
     Array!Root roots;
