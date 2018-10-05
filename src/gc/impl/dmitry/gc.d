@@ -88,7 +88,7 @@ import gc.os : os_mem_map, os_mem_unmap;
 import gc.config;
 import gc.gcinterface;
 
-import rt.util.container.array : Array;
+import rt.util.container.paged_dynamic_array : Array = PagedDynamicArray;
 import rt.util.container.static_bitarray : StaticBitArray;
 
 import core.stdc.stdio: printf;
