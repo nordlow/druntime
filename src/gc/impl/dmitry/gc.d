@@ -276,7 +276,7 @@ struct Store
 
 class DmitryGC : GC
 {
-    // these are global variables (`__gshared`)
+    // these need to be global variables (`__gshared`)
     __gshared Store globalStore;
     __gshared SmallPools globalSmallPools;
 
