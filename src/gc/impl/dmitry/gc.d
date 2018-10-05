@@ -233,8 +233,10 @@ struct SmallPools
 
         BlkInfo retval = void;
 
+        retval.size = size;
+        retval.attr = bits;
+
         const adjustedSize = sizeClassCeil(size); // TODO move this to compile-time and add malloc overloeads for each size class
-        printf("### %s: adjustedSize:%lu\n", __FUNCTION__.ptr, adjustedSize);
     top:
         switch (adjustedSize)
         {
@@ -249,9 +251,6 @@ struct SmallPools
             retval.base = null;
             // assert(0, "Handle adjustedSize");
         }
-
-        retval.size = size;
-        retval.attr = bits;
 
         return retval;
     }
