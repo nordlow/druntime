@@ -95,7 +95,7 @@ import core.stdc.stdio: printf;
 import cstdlib = core.stdc.stdlib : calloc, free, malloc, realloc;
 static import core.memory;
 
-debug = PRINTF;
+// debug = PRINTF;
 
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
