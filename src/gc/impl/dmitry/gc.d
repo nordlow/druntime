@@ -189,6 +189,10 @@ if (sizeClass >= sizeClasses[0])
 
     void* allocateNext() @trusted // pure nothrow @nogc
     {
+        // TODO scan `slotUsages` at slotIndex using core.bitop.bsf to find
+        // first free page if any. Use modification of `indexOfFirstSetBit` that
+        // takes startIndex being `slotIndex` If not hit set `slotIndex` to
+        // `Page.slotCount`
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
