@@ -232,19 +232,18 @@ struct SmallPools
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
 
         BlkInfo retval = void;
-        retval.size = size;
         retval.attr = bits;
 
         // TODO optimize this:
-        size_t adjustedSize = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
-        if (adjustedSize < sizeClasses[0])
+        retval.size = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        if (retval.size < sizeClasses[0])
         {
-            adjustedSize = sizeClasses[0];
+            retval.size = sizeClasses[0];
         }
 
         // TODO calculate index of first bit set and use that in lookup table
     top:
-        switch (adjustedSize)
+        switch (retval.size)
         {
             static foreach (sizeClass; sizeClasses)
             {
