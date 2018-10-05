@@ -241,7 +241,6 @@ struct SmallPools
             retval.size = sizeClasses[0];
         }
 
-        // TODO calculate index of first bit set and use that in lookup table
     top:
         switch (retval.size)
         {
