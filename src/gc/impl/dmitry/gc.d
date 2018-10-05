@@ -137,7 +137,7 @@ size_t sizeClassCeil(size_t sz) @safe pure nothrow @nogc
 struct SmallSlot(uint wordCount)
 if (wordCount >= 1)
 {
-    void[8*wordCount] bytes;
+    void[8*wordCount] _slotData;
 }
 
 @safe pure nothrow @nogc unittest
