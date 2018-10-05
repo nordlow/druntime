@@ -189,6 +189,7 @@ if (sizeClass >= sizeClasses[0])
 
     void* allocateNext() @trusted // pure nothrow @nogc
     {
+        printf("### %s()\n", __FUNCTION__.ptr);
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
         if (needNewPage)
@@ -237,7 +238,7 @@ struct SmallPools
     top:
         switch (adjustedSize)
         {
-            static foreach (const sizeClass; sizeClasses)
+            static foreach (sizeClass; sizeClasses)
             {
             case sizeClass:
                 mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
