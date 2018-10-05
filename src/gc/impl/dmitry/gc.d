@@ -183,7 +183,7 @@ struct SmallPageTable(uint sizeClass)
 
 /// Small pool of pages.
 struct SmallPool(uint sizeClass, bool pointerFlag)
-    if (sizeClass >= sizeClasses[0])
+if (sizeClass >= sizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
 
