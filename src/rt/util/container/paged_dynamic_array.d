@@ -69,14 +69,25 @@ struct PagedDynamicArray(T)
                 // }
             }
 
+            auto oldptr = _ptr;
             if (newLength != 0)
             {
-                auto oldptr = _ptr;
                 _ptr = cast(T*)os_mem_map(newCapacityInPages*PAGESIZE);
                 import core.stdc.string : memcpy;
-                memcpy(ptr, oldptr, capacityInBytes);
+                if (oldptr !is null)
+                {
+                    memcpy(ptr, oldptr, capacityInBytes);
+                }
             }
-            os_mem_unmap(_ptr, capacityInBytes);
+            else
+            {
+                _ptr = null;
+            }
+            if (oldptr != null)
+            {
+                os_mem_unmap(oldptr, capacityInBytes);
+            }
+            _capacityInPages = newCapacityInPages;
 
             // rely on mmap zeroing for us
             // if (newLength > _length)
