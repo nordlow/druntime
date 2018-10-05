@@ -74,7 +74,7 @@
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
  * License:   $(HTTP www.boost.org/LICENSE_1_0.txt, Boost License 1.0).
- * Authors:   Sean Kelly
+ * Authors:   Per Nordlöw
  */
 
 /*          Copyright Per Nordlöw 2018 - .
@@ -272,13 +272,13 @@ struct Store
 {
     Array!Root roots;
     Array!Range ranges;
+    SmallPools smallPools;
 }
 
 class DmitryGC : GC
 {
     // these need to be global variables (`__gshared`)
     __gshared Store globalStore;
-    __gshared SmallPools globalSmallPools;
 
     static void initialize(ref GC gc)
     {
@@ -367,7 +367,7 @@ class DmitryGC : GC
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = globalSmallPools.qalloc(size, bits).base;
+        void* p = globalStore.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         return p;
@@ -376,7 +376,7 @@ class DmitryGC : GC
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        return globalSmallPools.qalloc(size, bits);
+        return globalStore.smallPools.qalloc(size, bits);
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
