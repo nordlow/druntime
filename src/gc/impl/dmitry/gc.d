@@ -205,8 +205,7 @@ if (sizeClass >= sizeClasses[0])
         else
         {
             pageTables[pageIndex].slotUsages[slotIndex] = true; // mark slot
-            slotIndex += 1;
-            return &pageTables[pageIndex].pagePtr.slots[slotIndex];
+            return &pageTables[pageIndex].pagePtr.slots[slotIndex++];
         }
     }
 
