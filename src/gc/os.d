@@ -73,7 +73,7 @@ static if (is(typeof(VirtualAlloc))) // version (GC_Use_Alloc_Win32)
     /**
      * Map memory.
      */
-    void *os_mem_map(size_t nbytes) nothrow
+    void *os_mem_map(size_t nbytes) nothrow @nogc
     {
         return VirtualAlloc(null, nbytes, MEM_RESERVE | MEM_COMMIT,
                 PAGE_READWRITE);
@@ -86,14 +86,14 @@ static if (is(typeof(VirtualAlloc))) // version (GC_Use_Alloc_Win32)
      *      0       success
      *      !=0     failure
      */
-    int os_mem_unmap(void *base, size_t nbytes) nothrow
+    int os_mem_unmap(void *base, size_t nbytes) nothrow @nogg
     {
         return cast(int)(VirtualFree(base, 0, MEM_RELEASE) == 0);
     }
 }
 else static if (is(typeof(mmap)))  // else version (GC_Use_Alloc_MMap)
 {
-    void *os_mem_map(size_t nbytes) nothrow
+    void *os_mem_map(size_t nbytes) nothrow @nogc
     {   void *p;
 
         p = mmap(null, nbytes, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
@@ -101,20 +101,20 @@ else static if (is(typeof(mmap)))  // else version (GC_Use_Alloc_MMap)
     }
 
 
-    int os_mem_unmap(void *base, size_t nbytes) nothrow
+    int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
     {
         return munmap(base, nbytes);
     }
 }
 else static if (is(typeof(valloc))) // else version (GC_Use_Alloc_Valloc)
 {
-    void *os_mem_map(size_t nbytes) nothrow
+    void *os_mem_map(size_t nbytes) nothrow @nogc
     {
         return valloc(nbytes);
     }
 
 
-    int os_mem_unmap(void *base, size_t nbytes) nothrow
+    int os_mem_unmap(void *base, size_t nbytes) nothrow @nogc
     {
         free(base);
         return 0;
