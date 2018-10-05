@@ -241,12 +241,13 @@ struct SmallPools
             static foreach (sizeClass; sizeClasses)
             {
             case sizeClass:
+                printf("### %s: GOT sizeClass:%lu\n", __FUNCTION__.ptr, sizeClass);
                 mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
                 break top;
             }
         default:
             retval.base = null;
-            assert(0, "Handle adjustedSize");
+            // assert(0, "Handle adjustedSize");
         }
 
         retval.size = size;
