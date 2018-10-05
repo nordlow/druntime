@@ -359,6 +359,7 @@ SRCS=\
 	src\rt\util\typeinfo.d \
 	src\rt\util\utf.d \
 	src\rt\util\container\array.d \
+	src\rt\util\container\paged_dynamic_array.d \
 	src\rt\util\container\common.d \
 	src\rt\util\container\hashtab.d \
 	src\rt\util\container\treap.d \
