@@ -266,8 +266,6 @@ private:
     }
 }
 
-pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
-
 struct Store
 {
     Array!Root roots;
