@@ -252,7 +252,7 @@ struct SmallPools
             }
         default:
             retval.base = null;
-            // assert(0, "Handle adjustedSize");
+            // assert(0, "Handle other retval.size");
         }
 
         return retval;
