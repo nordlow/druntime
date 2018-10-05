@@ -276,6 +276,8 @@ struct Store
 class DmitryGC : GC
 {
     __gshared Store globalStore;
+
+    // __gshared has no measureable overhead here
     __gshared SmallPools globalSmallPools; // TODO look at gcx in conservative
 
     static void initialize(ref GC gc)
