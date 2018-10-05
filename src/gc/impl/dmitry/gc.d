@@ -189,13 +189,13 @@ if (sizeClass >= sizeClasses[0])
 
     void* allocateNext() @trusted // pure nothrow @nogc
     {
-        printf("### %s()\n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
-            printf("### %s(): pagePtr:%p\n", __FUNCTION__.ptr, pagePtr);
+            debug(PRINTF) printf("### %s(): pagePtr:%p\n", __FUNCTION__.ptr, pagePtr);
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
             pageTables[pageIndex].slotUsages[0] = true; // mark slot
@@ -229,7 +229,7 @@ struct SmallPools
 {
     BlkInfo qalloc(size_t size, uint bits) nothrow
     {
-        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+        debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
 
         BlkInfo retval = void;
         retval.size = size;
@@ -275,7 +275,7 @@ class DmitryGC : GC
 
     static void initialize(ref GC gc)
     {
-        printf("### %s()\n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
 
         if (config.gc != "dmitry")
             return;
@@ -295,7 +295,7 @@ class DmitryGC : GC
 
     static void finalize(ref GC gc)
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         if (config.gc != "dmitry")
             return;
 
@@ -306,60 +306,60 @@ class DmitryGC : GC
 
     this()
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void Dtor()
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void enable()
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void disable()
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void collect() nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void collectNoStack() nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     void minimize() nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     uint getAttr(void* p) nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return 0;
     }
 
     uint setAttr(void* p, uint mask) nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return 0;
     }
 
     uint clrAttr(void* p, uint mask) nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return 0;
     }
 
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+        debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         void* p = globalSmallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
@@ -368,13 +368,13 @@ class DmitryGC : GC
 
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+        debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         return globalSmallPools.qalloc(size, bits);
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
+        debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
         void* p = cstdlib.calloc(1, size);
 
         if (size && p is null)
@@ -384,7 +384,7 @@ class DmitryGC : GC
 
     void* realloc(void* p, size_t size, uint bits, const TypeInfo ti) nothrow
     {
-        printf("### %s(p:%p, size:%lu, bits:%u)\n", __FUNCTION__.ptr, p, size, bits);
+        debug(PRINTF) printf("### %s(p:%p, size:%lu, bits:%u)\n", __FUNCTION__.ptr, p, size, bits);
         p = cstdlib.realloc(p, size);
 
         if (size && p is null)
@@ -394,19 +394,19 @@ class DmitryGC : GC
 
     size_t extend(void* p, size_t minsize, size_t maxsize, const TypeInfo ti) nothrow
     {
-        printf("### %s(p:%p, minsize:%lu, maxsize:%lu)\n", __FUNCTION__.ptr, p, minsize, maxsize);
+        debug(PRINTF) printf("### %s(p:%p, minsize:%lu, maxsize:%lu)\n", __FUNCTION__.ptr, p, minsize, maxsize);
         return 0;
     }
 
     size_t reserve(size_t size) nothrow
     {
-        printf("### %s(size:%lu)\n", __FUNCTION__.ptr, size);
+        debug(PRINTF) printf("### %s(size:%lu)\n", __FUNCTION__.ptr, size);
         return 0;
     }
 
     void free(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         cstdlib.free(p);
     }
 
@@ -416,7 +416,7 @@ class DmitryGC : GC
      */
     void* addrOf(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         return null;
     }
 
@@ -426,7 +426,7 @@ class DmitryGC : GC
      */
     size_t sizeOf(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         return 0;
     }
 
@@ -436,25 +436,25 @@ class DmitryGC : GC
      */
     BlkInfo query(void* p) nothrow
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         return BlkInfo.init;
     }
 
     core.memory.GC.Stats stats() nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return typeof(return).init;
     }
 
     void addRoot(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         globalStore.roots.insertBack(Root(p));
     }
 
     void removeRoot(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         foreach (ref r; globalStore.roots)
         {
             if (r is p)
@@ -469,13 +469,13 @@ class DmitryGC : GC
 
     @property RootIterator rootIter() return @nogc
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return &rootsApply;
     }
 
     private int rootsApply(scope int delegate(ref Root) nothrow dg)
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         foreach (ref r; globalStore.roots)
         {
             if (auto result = dg(r))
@@ -486,13 +486,13 @@ class DmitryGC : GC
 
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
-        printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
+        debug(PRINTF) printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
         globalStore.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
     void removeRange(void* p) nothrow @nogc
     {
-        printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
+        debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
         foreach (ref r; globalStore.ranges)
         {
             if (r.pbot is p)
@@ -507,13 +507,13 @@ class DmitryGC : GC
 
     @property RangeIterator rangeIter() return @nogc
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         return &rangesApply;
     }
 
     private int rangesApply(scope int delegate(ref Range) nothrow dg)
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
         foreach (ref r; globalStore.ranges)
         {
             if (auto result = dg(r))
@@ -524,7 +524,7 @@ class DmitryGC : GC
 
     void runFinalizers(in void[] segment) nothrow
     {
-        printf("### %s: \n", __FUNCTION__.ptr);
+        debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
     }
 
     bool inFinalizer() nothrow
