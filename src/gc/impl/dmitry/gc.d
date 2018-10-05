@@ -245,8 +245,7 @@ struct SmallPools
                 break top;
             }
         default:
-            printf("### %s: TODO Handle adjustedSize:%lu\n", __FUNCTION__.ptr, adjustedSize);
-            assert(0);
+            assert(0, "Handle adjustedSize");
         }
 
         retval.size = size;
