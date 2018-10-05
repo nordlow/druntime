@@ -9,12 +9,12 @@ module rt.util.container.paged_dynamic_array;
 
 static import common = rt.util.container.common;
 
-struct PageDynamicArray(T)
+struct PagedDynamicArray(T)
 {
     import gc.os : os_mem_map, os_mem_unmap;
     import core.exception : onOutOfMemoryErrorNoGC;
 
-    nothrow:
+    nothrow @nogc:
 
     @disable this(this);
 
@@ -164,7 +164,7 @@ struct PageDynamicArray(T)
         popBack();
     }
 
-    void swap(ref PageDynamicArray other)
+    void swap(ref PagedDynamicArray other)
     {
         auto ptr = _ptr;
         _ptr = other._ptr;
@@ -187,7 +187,7 @@ private:
 
 unittest
 {
-    PageDynamicArray!size_t ary;
+    PagedDynamicArray!size_t ary;
 
     assert(ary[] == []);
     ary.insertBack(5);
@@ -220,10 +220,10 @@ unittest
     assert(ary.empty);
 
     // not copyable
-    static assert(!__traits(compiles, { PageDynamicArray!size_t ary2 = ary; }));
-    PageDynamicArray!size_t ary2;
+    static assert(!__traits(compiles, { PagedDynamicArray!size_t ary2 = ary; }));
+    PagedDynamicArray!size_t ary2;
     static assert(!__traits(compiles, ary = ary2));
-    static void foo(PageDynamicArray!size_t copy) {}
+    static void foo(PagedDynamicArray!size_t copy) {}
     static assert(!__traits(compiles, foo(ary)));
 
     ary2.insertBack(0);
@@ -237,7 +237,7 @@ unittest
 unittest
 {
     alias RC = common.RC;
-    PageDynamicArray!RC ary;
+    PagedDynamicArray!RC ary;
 
     size_t cnt;
     assert(cnt == 0);
@@ -259,7 +259,7 @@ unittest
     try
     {
         // Overflow ary.length.
-        auto ary = PageDynamicArray!size_t(cast(size_t*)0xdeadbeef, -1);
+        auto ary = PagedDynamicArray!size_t(cast(size_t*)0xdeadbeef, -1);
         ary.insertBack(0);
     }
     catch (OutOfMemoryError)
@@ -268,7 +268,7 @@ unittest
     try
     {
         // Overflow requested memory size for common.xrealloc().
-        auto ary = PageDynamicArray!size_t(cast(size_t*)0xdeadbeef, -2);
+        auto ary = PagedDynamicArray!size_t(cast(size_t*)0xdeadbeef, -2);
         ary.insertBack(0);
     }
     catch (OutOfMemoryError)
