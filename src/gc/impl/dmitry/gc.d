@@ -195,6 +195,7 @@ if (sizeClass >= sizeClasses[0])
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
+            printf("### %s() pagePtr:%p\n", __FUNCTION__.ptr, pagePtr);
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
             pageTables[pageIndex].slotUsages[0] = true; // mark slot
