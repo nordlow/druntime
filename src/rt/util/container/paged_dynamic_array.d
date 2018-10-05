@@ -194,16 +194,6 @@ struct PagedDynamicArray(T)
         popBack();
     }
 
-    void swap(ref PagedDynamicArray other) @trusted
-    {
-        auto ptr = _ptr;
-        _ptr = other._ptr;
-        other._ptr = ptr;
-        immutable len = _length;
-        _length = other._length;
-        other._length = len;
-    }
-
     invariant
     {
         assert(!_ptr == !_length);
@@ -268,29 +258,7 @@ unittest
     ary2.insertBack(0);
     assert(ary.empty);
     assert(ary2[] == [0]);
-    ary.swap(ary2);
-    assert(ary[] == [0]);
-    assert(ary2.empty);
 }
-
-// unittest
-// {
-//     alias RC = common.RC;
-//     PagedDynamicArray!RC ary;
-
-//     size_t cnt;
-//     assert(cnt == 0);
-//     ary.insertBack(RC(&cnt));
-//     assert(cnt == 1);
-//     ary.insertBack(RC(&cnt));
-//     assert(cnt == 2);
-//     ary.back = ary.front;
-//     assert(cnt == 2);
-//     ary.popBack();
-//     assert(cnt == 1);
-//     ary.popBack();
-//     assert(cnt == 0);
-// }
 
 unittest
 {
