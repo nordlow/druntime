@@ -8,6 +8,9 @@
 module rt.util.container.paged_dynamic_array;
 
 static import common = rt.util.container.common;
+import core.stdc.stdio: printf;
+
+version = PRINTF;
 
 struct PagedDynamicArray(T)
 {
@@ -45,20 +48,12 @@ struct PagedDynamicArray(T)
     {
         import core.checkedint : mulu;
 
-        if (newLength == 0)
-        {
-            if (_ptr != null)
-            {
-                os_mem_unmap(_ptr, capacityInBytes);
-                _ptr = null;
-            }
-            _capacityInPages = 0;
-        }
-        else if (newLength*T.sizeof > capacityInBytes)
+        if (newLength*T.sizeof > capacityInBytes) // common case first
         {
             bool overflow = false;
             const size_t reqsize = mulu(T.sizeof, newLength, overflow);
             const size_t newCapacityInPages = reqsize/PAGESIZE + (reqsize%PAGESIZE ? 1 : 0);
+            version(PRINTF) printf("### %s() newCapacityInPages:%lu\n", __FUNCTION__.ptr, newCapacityInPages);
             if (overflow)
             {
                 onOutOfMemoryErrorNoGC();
@@ -82,7 +77,7 @@ struct PagedDynamicArray(T)
             import core.stdc.string : memcpy;
             if (_ptr !is null)
             {
-                memcpy(newPtr, _ptr, capacityInBytes);
+                memcpy(newPtr, _ptr, capacityInBytes); // TODO can we copy pages faster than this?
                 os_mem_unmap(_ptr, capacityInBytes);
             }
             _ptr = newPtr;
@@ -96,6 +91,16 @@ struct PagedDynamicArray(T)
             //         common.initialize(val);
             //     }
             // }
+        }
+        else if (newLength == 0)
+        {
+            version(PRINTF) printf("### %s() zeroed\n", __FUNCTION__.ptr);
+            if (_ptr != null)
+            {
+                os_mem_unmap(_ptr, capacityInBytes);
+                _ptr = null;
+            }
+            _capacityInPages = 0;
         }
 
         _length = newLength;
