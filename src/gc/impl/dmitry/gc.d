@@ -259,6 +259,7 @@ private:
         mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
     }
 }
+
 pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
 struct Store
