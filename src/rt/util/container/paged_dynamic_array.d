@@ -73,7 +73,19 @@ struct PagedDynamicArray(T)
                 // }
             }
 
-            T* newPtr = cast(T*)os_mem_map(newCapacityInPages*PAGESIZE);
+            const newCapacityInBytes = newCapacityInPages*PAGESIZE;
+
+            T* newPtr;
+            version(linux)
+            {
+                if (_ptr !is null)  // if should do remap
+                {
+                    _ptr = cast(T*)mremap(_ptr, capacityInBytes, newCapacityInBytes, MREMAP_MAYMOVE);
+                    goto done;
+                }
+            }
+
+            newPtr = cast(T*)os_mem_map(newCapacityInBytes);
             import core.stdc.string : memcpy;
             if (_ptr !is null)
             {
@@ -81,6 +93,8 @@ struct PagedDynamicArray(T)
                 os_mem_unmap(_ptr, capacityInBytes);
             }
             _ptr = newPtr;
+
+        done:
             _capacityInPages = newCapacityInPages;
 
             // rely on mmap zeroing for us
@@ -198,6 +212,15 @@ private:
     T* _ptr;
     size_t _length;
     size_t _capacityInPages;    // of size `PAGESIZE`
+}
+
+version(linux)
+{
+    enum MREMAP_MAYMOVE = 1;
+    nothrow @nogc:
+    extern(C) void *mremap(void *old_address, size_t old_size,
+                           size_t new_size, int flags, ... /* void *new_address */);
+
 }
 
 unittest
