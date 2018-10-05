@@ -10,7 +10,7 @@ module rt.util.container.paged_dynamic_array;
 static import common = rt.util.container.common;
 import core.stdc.stdio: printf;
 
-version = PRINTF;
+// version = PRINTF;
 
 struct PagedDynamicArray(T)
 {
