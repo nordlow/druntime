@@ -198,14 +198,14 @@ if (sizeClass >= sizeClasses[0])
             debug(PRINTF) printf("### %s(): pagePtr:%p\n", __FUNCTION__.ptr, pagePtr);
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
-            pageTables[pageIndex].slotUsages[0] = true; // mark slot
+            pageTables.ptr[pageIndex].slotUsages[0] = true; // mark slot
             slotIndex = 1;
             return &pagePtr.slots[0]; // first slot
         }
         else
         {
-            pageTables[pageIndex].slotUsages[slotIndex] = true; // mark slot
-            return &pageTables[pageIndex].pagePtr.slots[slotIndex++];
+            pageTables.ptr[pageIndex].slotUsages[slotIndex] = true; // mark slot
+            return &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex++];
         }
     }
 
