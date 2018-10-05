@@ -245,6 +245,7 @@ struct SmallPools
                 break top;
             }
         default:
+            retval.base = null;
             assert(0, "Handle adjustedSize");
         }
 
