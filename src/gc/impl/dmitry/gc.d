@@ -198,7 +198,7 @@ if (sizeClass >= sizeClasses[0])
 
             pageTables[pageIndex].slotUsages[0] = true; // mark slot
             slotIndex = 1;
-            return &pagePtr.slots[0];     // beginning of page
+            return &pagePtr.slots[0]; // first slot
         }
         else
         {
