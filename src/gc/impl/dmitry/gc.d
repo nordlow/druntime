@@ -235,7 +235,8 @@ struct SmallPools
         retval.attr = bits;
 
         // TODO optimize this:
-        retval.size = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        // TODO move this to compile-time and add malloc overloads for each size class
+        retval.size = ceilPow2(size);
         if (retval.size < sizeClasses[0])
         {
             retval.size = sizeClasses[0];
