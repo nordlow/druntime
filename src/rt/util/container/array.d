@@ -89,6 +89,11 @@ nothrow:
         return _ptr[a .. b];
     }
 
+    inout(T)* ptr() inout @system
+    {
+        return _ptr;
+    }
+
     alias length opDollar;
 
     void insertBack()(auto ref T val)
