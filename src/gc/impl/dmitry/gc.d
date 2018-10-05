@@ -210,7 +210,7 @@ if (sizeClass >= sizeClasses[0])
     }
 
     Array!(SmallPageTable!sizeClass) pageTables;
-    size_t slotIndex = 0;
+    size_t slotIndex = 0;       // index to first free slot in pool across multiple page
 }
 
 // TODO @safe pure nothrow @nogc
