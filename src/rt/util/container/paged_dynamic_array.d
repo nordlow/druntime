@@ -50,8 +50,8 @@ struct PagedDynamicArray(T)
             if (_ptr != null)
             {
                 os_mem_unmap(_ptr, capacityInBytes);
+                _ptr = null;
             }
-            _ptr = null;
             _capacityInPages = 0;
         }
         else if (newLength*T.sizeof > capacityInBytes)
