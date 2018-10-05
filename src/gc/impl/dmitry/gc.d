@@ -115,22 +115,22 @@ static immutable sizeClasses = [8,
                                 4096];
 
 /// Ceiling to closest to size class of `sz`.
-size_t sizeClassCeil(size_t sz) @safe pure nothrow @nogc
+size_t ceilPow2(size_t sz) @safe pure nothrow @nogc
 {
     return nextPow2(sz - 1);
 }
 
 @safe pure nothrow @nogc unittest
 {
-    assert(sizeClassCeil(1) == 1);
-    assert(sizeClassCeil(2) == 2);
-    assert(sizeClassCeil(3) == 4);
-    assert(sizeClassCeil(4) == 4);
-    assert(sizeClassCeil(5) == 8);
-    assert(sizeClassCeil(6) == 8);
-    assert(sizeClassCeil(7) == 8);
-    assert(sizeClassCeil(8) == 8);
-    assert(sizeClassCeil(9) == 16);
+    assert(ceilPow2(1) == 1);
+    assert(ceilPow2(2) == 2);
+    assert(ceilPow2(3) == 4);
+    assert(ceilPow2(4) == 4);
+    assert(ceilPow2(5) == 8);
+    assert(ceilPow2(6) == 8);
+    assert(ceilPow2(7) == 8);
+    assert(ceilPow2(8) == 8);
+    assert(ceilPow2(9) == 16);
 }
 
 /// Small slot foreach slot contains `wordCount` machine words.
@@ -235,7 +235,7 @@ struct SmallPools
         retval.size = size;
         retval.attr = bits;
 
-        const adjustedSize = sizeClassCeil(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        const adjustedSize = ceilPow2(size); // TODO move this to compile-time and add malloc overloeads for each size class
     top:
         switch (adjustedSize)
         {
