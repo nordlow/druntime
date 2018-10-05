@@ -244,7 +244,6 @@ struct SmallPools
             static foreach (sizeClass; sizeClasses)
             {
             case sizeClass:
-                printf("### %s: GOT sizeClass:%lu\n", __FUNCTION__.ptr, sizeClass);
                 mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
                 break top;
             }
