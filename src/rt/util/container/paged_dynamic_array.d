@@ -136,7 +136,7 @@ struct PagedDynamicArray(T)
 
     alias length opDollar;
 
-    void insertBack()(auto ref T val)
+    void insertBack()(auto ref T val) @trusted
     {
         import core.checkedint : addu;
         bool overflow = false;
@@ -149,7 +149,7 @@ struct PagedDynamicArray(T)
         back = val;
     }
 
-    void popBack()
+    void popBack() @system
     {
         // TODO destroy back element if needed
         length = length - 1;
@@ -164,7 +164,7 @@ struct PagedDynamicArray(T)
         popBack();
     }
 
-    void swap(ref PagedDynamicArray other)
+    void swap(ref PagedDynamicArray other) @trusted
     {
         auto ptr = _ptr;
         _ptr = other._ptr;
