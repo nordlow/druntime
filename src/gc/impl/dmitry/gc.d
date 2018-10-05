@@ -279,7 +279,7 @@ class DmitryGC : GC
     __gshared Store globalStore;
 
     // __gshared has no measureable overhead here
-    SmallPools globalSmallPools; // TODO look at gcx in conservative
+    SmallPools globalSmallPools; // no common locking vai `__gshared`
 
     static void initialize(ref GC gc)
     {
