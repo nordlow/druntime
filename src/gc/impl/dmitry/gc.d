@@ -233,6 +233,7 @@ struct SmallPools
         BlkInfo retval = void;
 
         const adjustedSize = sizeClassCeil(size); // TODO move this to compile-time and add malloc overloeads for each size class
+        printf("### %s: adjustedSize:%lu\n", __FUNCTION__.ptr, adjustedSize);
     top:
         switch (adjustedSize)
         {
@@ -360,8 +361,7 @@ class DmitryGC : GC
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = cstdlib.malloc(size);
-
+        void* p = globalSmallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         return p;
@@ -370,11 +370,7 @@ class DmitryGC : GC
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        BlkInfo retval;
-        retval.base = malloc(size, bits, ti);
-        retval.size = size;
-        retval.attr = bits;
-        return retval;
+        return globalSmallPools.qalloc(size, bits);
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
