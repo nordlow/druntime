@@ -233,7 +233,6 @@ struct SmallPools
         printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
 
         BlkInfo retval = void;
-
         retval.size = size;
         retval.attr = bits;
 
