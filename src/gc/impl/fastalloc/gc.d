@@ -305,11 +305,22 @@ struct Store
     SmallPools smallPools;
 }
 
+// these need to be global variables (`__gshared`)
+__gshared Store globalStore;
+
+extern (C)
+{
+    void* gc_malloc_16(uint ba = 0, const TypeInfo ti = null) @trusted nothrow
+    {
+        void* p = globalStore.smallPools.qalloc(16, ba).base;
+        if (p is null)
+            onOutOfMemoryError();
+        return p;
+    }
+}
+
 class FastallocGC : GC
 {
-    // these need to be global variables (`__gshared`)
-    __gshared Store globalStore;
-
     static void initialize(ref GC gc)
     {
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
@@ -412,10 +423,10 @@ class FastallocGC : GC
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = cstdlib.calloc(1, size);
-
+        void* p = globalStore.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
+        // TODO zero memory
         return p;
     }
 
