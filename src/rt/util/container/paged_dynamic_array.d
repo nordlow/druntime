@@ -14,8 +14,9 @@ import core.stdc.stdio: printf;
 
 struct PagedDynamicArray(T)
 {
-    import gc.os : os_mem_map, os_mem_unmap;
+    import core.internal.traits : hasElaborateDestructor;
     import core.exception : onOutOfMemoryErrorNoGC;
+    import gc.os : os_mem_map, os_mem_unmap;
 
     @safe nothrow @nogc:
 
@@ -59,7 +60,6 @@ struct PagedDynamicArray(T)
                 onOutOfMemoryErrorNoGC();
             }
 
-            import core.internal.traits : hasElaborateDestructor;
             static if (hasElaborateDestructor!T)
             {
                 static assert("destroy T");
@@ -183,7 +183,10 @@ struct PagedDynamicArray(T)
 
     void popBack() @system
     {
-        // TODO destroy back element if needed
+        if (hasElaborateDestructor!T)
+        {
+            // destroy back element
+        }
         length = length - 1;
     }
 
@@ -191,8 +194,12 @@ struct PagedDynamicArray(T)
     in { assert(idx < length); }
     do
     {
+        if (hasElaborateDestructor!T)
+        {
+            // destroy `idx`:th element
+        }
         foreach (i; idx .. length - 1)
-            _ptr[i] = _ptr[i+1];
+            _ptr[i] = _ptr[i+1]; // TODO move if hasElaborateDestructor!T
         popBack();
     }
 
