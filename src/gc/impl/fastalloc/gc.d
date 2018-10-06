@@ -312,10 +312,14 @@ extern (C)
 {
     void* gc_malloc_16(uint ba = 0) @trusted nothrow
     {
-        void* p = globalStore.smallPools.qalloc(16, ba).base;
-        if (p is null)
-            onOutOfMemoryError();
-        return p;
+        if (ba & BlkAttr.NO_SCAN) // no scanning needed
+        {
+            return globalStore.smallPools.unscannedPool16.allocateNext();
+        }
+        else
+        {
+            return globalStore.smallPools.scannedPool16.allocateNext();
+        }
     }
 }
 
