@@ -305,8 +305,9 @@ struct Store
     SmallPools smallPools;
 }
 
-// this shaves of one nano-second meaning not worth it
-version(none)
+// these need to be global variables (`__gshared`)
+__gshared Store globalStore;
+
 extern (C)
 {
     void* gc_malloc_16(uint ba = 0) @trusted nothrow
@@ -320,9 +321,6 @@ extern (C)
 
 class FastallocGC : GC
 {
-    // these need to be global variables (`__gshared`)
-    __gshared Store globalStore;
-
     static void initialize(ref GC gc)
     {
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
