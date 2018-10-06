@@ -296,7 +296,7 @@ private:
         mixin(`SmallPool!(sizeClass, true) scannedPool` ~ sizeClass.stringof ~ `;`);
     }
 }
-pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
+// pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
 struct Store
 {
