@@ -252,38 +252,38 @@ struct SmallPools
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
 
-        BlkInfo retval = void;
-        retval.attr = bits;
+        BlkInfo blkinfo = void;
+        blkinfo.attr = bits;
 
         // TODO optimize this:
-        retval.size = ceilPow2(size);
-        if (retval.size < smallSizeClasses[0])
+        blkinfo.size = ceilPow2(size);
+        if (blkinfo.size < smallSizeClasses[0])
         {
-            retval.size = smallSizeClasses[0];
+            blkinfo.size = smallSizeClasses[0];
         }
 
     top:
-        switch (retval.size)
+        switch (blkinfo.size)
         {
             static foreach (sizeClass; smallSizeClasses)
             {
             case sizeClass:
                 if (bits & BlkAttr.NO_SCAN) // no scanning needed
                 {
-                    mixin(`retval.base = unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
+                    mixin(`blkinfo.base = unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
                 }
                 else
                 {
-                    mixin(`retval.base = scannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
+                    mixin(`blkinfo.base = scannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
                 }
                 break top;
             }
         default:
-            retval.base = null;
-            assert(0, "Handle other retval.size");
+            blkinfo.base = null;
+            assert(0, "Handle other blkinfo.size");
         }
 
-        return retval;
+        return blkinfo;
     }
 private:
     static foreach (sizeClass; smallSizeClasses)
