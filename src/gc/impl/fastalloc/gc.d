@@ -268,12 +268,19 @@ struct SmallPools
             static foreach (sizeClass; smallSizeClasses)
             {
             case sizeClass:
-                mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
+                if (bits & BlkAttr.NO_SCAN) // no scanning needed
+                {
+                    mixin(`retval.base = unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
+                }
+                else
+                {
+                    mixin(`retval.base = scannedPool` ~ sizeClass.stringof ~ `.allocateNext();`);
+                }
                 break top;
             }
         default:
             retval.base = null;
-            // assert(0, "Handle other retval.size");
+            assert(0, "Handle other retval.size");
         }
 
         return retval;
@@ -283,8 +290,8 @@ private:
     {
         // Quote from https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
         // "Fine grained locking from the start, I see no problem with per pool locking."
-        mixin(`SmallPool!(sizeClass, false) valuePool` ~ sizeClass.stringof ~ `;`);
-        mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
+        mixin(`SmallPool!(sizeClass, false) unscannedPool` ~ sizeClass.stringof ~ `;`);
+        mixin(`SmallPool!(sizeClass, true) scannedPool` ~ sizeClass.stringof ~ `;`);
     }
 }
 pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
