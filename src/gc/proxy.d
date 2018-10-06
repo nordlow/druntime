@@ -13,7 +13,7 @@
  */
 module gc.proxy;
 
-import gc.impl.dmitry.gc;
+import gc.impl.fastalloc.gc;
 import gc.impl.conservative.gc;
 import gc.impl.manual.gc;
 import gc.impl.proto.gc;
@@ -47,7 +47,7 @@ extern (C)
 
             ManualGC.initialize(instance);
             ConservativeGC.initialize(instance);
-            DmitryGC.initialize(instance);
+            FastallocGC.initialize(instance);
 
             if (instance is protoInstance)
             {

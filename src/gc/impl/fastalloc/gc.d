@@ -88,7 +88,7 @@
  *    (See accompanying file LICENSE or copy at
  *          http://www.boost.org/LICENSE_1_0.txt)
  */
-module gc.impl.dmitry.gc;
+module gc.impl.fastalloc.gc;
 
 import gc.os : os_mem_map, os_mem_unmap;
 import gc.config;
@@ -296,7 +296,7 @@ struct Store
     SmallPools smallPools;
 }
 
-class DmitryGC : GC
+class FastallocGC : GC
 {
     // these need to be global variables (`__gshared`)
     __gshared Store globalStore;
@@ -305,17 +305,17 @@ class DmitryGC : GC
     {
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
 
-        if (config.gc != "dmitry")
+        if (config.gc != "fastalloc")
             return;
 
         import core.stdc.string;
-        auto p = cstdlib.malloc(__traits(classInstanceSize, DmitryGC));
+        auto p = cstdlib.malloc(__traits(classInstanceSize, FastallocGC));
         if (!p)
             onOutOfMemoryError();
 
-        auto init = typeid(DmitryGC).initializer();
-        assert(init.length == __traits(classInstanceSize, DmitryGC));
-        auto instance = cast(DmitryGC) memcpy(p, init.ptr, init.length);
+        auto init = typeid(FastallocGC).initializer();
+        assert(init.length == __traits(classInstanceSize, FastallocGC));
+        auto instance = cast(FastallocGC) memcpy(p, init.ptr, init.length);
         instance.__ctor();
 
         gc = instance;
@@ -324,10 +324,10 @@ class DmitryGC : GC
     static void finalize(ref GC gc)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        if (config.gc != "dmitry")
+        if (config.gc != "fastalloc")
             return;
 
-        auto instance = cast(DmitryGC) gc;
+        auto instance = cast(FastallocGC) gc;
         instance.Dtor();
         cstdlib.free(cast(void*) instance);
     }
