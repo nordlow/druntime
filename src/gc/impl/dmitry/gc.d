@@ -10,6 +10,9 @@
  *
  * TODO
  * - check ti to check if we should use value or ref pool
+ * - TODO use `slotUsages` during allocation
+ * - TODO use `slotMarks` during sweep
+ * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
  *
  * Spec:
  *
@@ -18,7 +21,7 @@
  *   - And later automatically inferred by the compiler.
  *
  * - Use jemalloc `size classes`:
- *   - Add overloads of malloc and qalloc for `sizeClasses`.
+ *   - Add overloads of malloc and qalloc for `smallSizeClasses`.
  *   - Use static foreach to generated pools for each size class with and without indirections.
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
@@ -105,17 +108,25 @@ extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
 
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
-/// Possible sizes classes (in bytes).
-static immutable sizeClasses = [8,
-                                16, // TODO 16 + 8,
-                                32, // TODO 32 + 16,
-                                64, // TODO 64 + 32,
-                                128, // TODO 128 +64,
-                                256, // TODO 256 + 128,
-                                512, // TODO 512 + 256,
-                                1024, // TODO 1024 + 512,
-                                2048, // TODO 2048 + 1024,
-                                4096];
+/// Small slot sizes classes (in bytes).
+static immutable smallSizeClasses = [8,
+                                     16, // TODO 16 + 8,
+                                     32, // TODO 32 + 16,
+                                     64, // TODO 64 + 32,
+                                     128, // TODO 128 +64,
+                                     256, // TODO 256 + 128,
+                                     512, // TODO 512 + 256,
+                                     1024, // TODO 1024 + 512,
+                                     2048, // TODO 2048 + 1024,
+    ];
+
+/// Medium slot sizes classes (in bytes).
+static immutable mediumSizeClasses = [1 << 12, // 4096
+                                      1 << 13, // 8192
+                                      1 << 14, // 16384
+                                      1 << 15, // 32768
+                                      1 << 16, // 65536
+    ];
 
 /// Ceiling to closest to size class of `sz`.
 size_t ceilPow2(size_t sz) @safe pure nothrow @nogc
@@ -151,7 +162,7 @@ if (wordCount >= 1)
 
 /// Small page storing slots of size `sizeClass`.
 struct SmallPage(uint sizeClass)
-if (sizeClass >= sizeClasses[0] &&
+if (sizeClass >= smallSizeClasses[0] &&
     sizeClass % 8 == 0)
 {
     enum wordCount = sizeClass/8;
@@ -164,7 +175,7 @@ if (sizeClass >= sizeClasses[0] &&
 
 @safe pure nothrow @nogc unittest
 {
-    static foreach (sizeClass; sizeClasses)
+    static foreach (sizeClass; smallSizeClasses)
     {
         {
             SmallPage!(sizeClass) x;
@@ -189,7 +200,7 @@ struct SmallPageTable(uint sizeClass)
 
 /// Small pool of pages.
 struct SmallPool(uint sizeClass, bool pointerFlag)
-if (sizeClass >= sizeClasses[0])
+if (sizeClass >= smallSizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
 
@@ -226,7 +237,7 @@ if (sizeClass >= sizeClasses[0])
 // TODO @safe pure nothrow @nogc
 unittest
 {
-    static foreach (sizeClass; sizeClasses)
+    static foreach (sizeClass; smallSizeClasses)
     {
         {
             SmallPool!(sizeClass, false) x;
@@ -246,15 +257,15 @@ struct SmallPools
 
         // TODO optimize this:
         retval.size = ceilPow2(size);
-        if (retval.size < sizeClasses[0])
+        if (retval.size < smallSizeClasses[0])
         {
-            retval.size = sizeClasses[0];
+            retval.size = smallSizeClasses[0];
         }
 
     top:
         switch (retval.size)
         {
-            static foreach (sizeClass; sizeClasses)
+            static foreach (sizeClass; smallSizeClasses)
             {
             case sizeClass:
                 mixin(`retval.base = valuePool` ~ sizeClass.stringof ~ `.allocateNext();`);
@@ -268,7 +279,7 @@ struct SmallPools
         return retval;
     }
 private:
-    static foreach (sizeClass; sizeClasses)
+    static foreach (sizeClass; smallSizeClasses)
     {
         // Quote from https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
         // "Fine grained locking from the start, I see no problem with per pool locking."
@@ -276,6 +287,7 @@ private:
         mixin(`SmallPool!(sizeClass, true) pointerPool` ~ sizeClass.stringof ~ `;`);
     }
 }
+pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
 struct Store
 {
