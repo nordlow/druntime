@@ -310,6 +310,13 @@ __gshared Store globalStore;
 
 extern (C)
 {
+    void* gc_malloc_8(uint ba = 0) @trusted nothrow
+    {
+        if (ba & BlkAttr.NO_SCAN) // no scanning needed
+            return globalStore.smallPools.unscannedPool8.allocateNext();
+        else
+            return globalStore.smallPools.scannedPool8.allocateNext();
+    }
     void* gc_malloc_16(uint ba = 0) @trusted nothrow
     {
         if (ba & BlkAttr.NO_SCAN) // no scanning needed
