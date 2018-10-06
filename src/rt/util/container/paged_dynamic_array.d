@@ -52,7 +52,7 @@ struct PagedDynamicArray(T)
         {
             bool overflow = false;
             const size_t reqsize = mulu(T.sizeof, newLength, overflow);
-            const size_t newCapacityInPages = reqsize/PAGESIZE + (reqsize%PAGESIZE ? 1 : 0);
+            const size_t newCapacityInPages = (reqsize + PAGESIZE - 1) / PAGESIZE;
             version(PRINTF) printf("### %s() newCapacityInPages:%lu\n", __FUNCTION__.ptr, newCapacityInPages);
             if (overflow)
             {
