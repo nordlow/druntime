@@ -2667,6 +2667,8 @@ struct Pool
 
     void initialize(size_t npages, bool isLargeObject) nothrow
     {
+        debug(PRINTF) printf("### %s(npages:%lu, isLargeObject:%d)\n", __FUNCTION__.ptr, npagese, isLargeObject);
+
         this.isLargeObject = isLargeObject;
         size_t poolsize;
 
