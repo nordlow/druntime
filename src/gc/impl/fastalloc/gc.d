@@ -313,13 +313,16 @@ extern (C)
     void* gc_malloc_16(uint ba = 0) @trusted nothrow
     {
         if (ba & BlkAttr.NO_SCAN) // no scanning needed
-        {
             return globalStore.smallPools.unscannedPool16.allocateNext();
-        }
         else
-        {
             return globalStore.smallPools.scannedPool16.allocateNext();
-        }
+    }
+    void* gc_malloc_32(uint ba = 0) @trusted nothrow
+    {
+        if (ba & BlkAttr.NO_SCAN) // no scanning needed
+            return globalStore.smallPools.unscannedPool32.allocateNext();
+        else
+            return globalStore.smallPools.scannedPool32.allocateNext();
     }
 }
 
