@@ -8,6 +8,9 @@
  * allocator may do better to store this data separately, similar to the basic
  * GC.
  *
+ * TODO
+ * - check ti to check if we should use value or ref pool
+ *
  * Spec:
  *
  * - Support lock-free thread local allocation in separate pools (static foreach generated)
@@ -177,8 +180,11 @@ struct SmallPageTable(uint sizeClass)
     Page* pagePtr;
     enum slotCount = PAGESIZE/sizeClass;
 
-    // bit i indicates if slot i in `*pagePtr` currently has a defined value
+    // bit `i` indicates if slot `i` in `*pagePtr` currently contains a initialized value
     StaticBitArray!(slotCount) slotUsages;
+
+    // bit `i` indicates if slot `i` in `*pagePtr` has been marked
+    StaticBitArray!(slotCount) slotMarks;
 }
 
 /// Small pool of pages.
