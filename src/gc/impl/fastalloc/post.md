@@ -11,7 +11,7 @@ The implementation currently does global allocation together with local
 allocation via the extra global functions (yes, not pretty, please give me ideas
 on how to improve this) `gc_tlmallocN()` where `N` can be any of the value in
 the static constant `smallSizeClasses`. This because I want to experiment with
-the possible allocation performance of thread-local GC allocation for D.
+the performance of thread-local GC allocation for D.
 
 For thread-local (non-spinlocked) GC allocation with specific size class
 overloads of gc_tlmallocN` I'm measuring _great_ allocation speeds-up for 16, 32
