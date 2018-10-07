@@ -322,8 +322,10 @@ struct Gcx
     uint disabled; // turn off collections if >0
 }
 
-// need to be global variables (`__gshared`)
-__gshared Gcx gcx;
+// global allocator (`__gshared`)
+__gshared Gcx globalGcx;
+
+Gcx tlGcx;                      // thread-local allocator instance
 
 extern (C)
 {
@@ -333,9 +335,9 @@ extern (C)
         void* gc_malloc_` ~ sizeClass.stringof ~ `(uint ba = 0) @trusted nothrow
         {
             if (ba & BlkAttr.NO_SCAN) // no scanning needed
-                return gcx.smallPools.unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();
+                return tlGcx.smallPools.unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();
             else
-                return gcx.smallPools.scannedPool` ~ sizeClass.stringof ~ `.allocateNext();
+                return tlGcx.smallPools.scannedPool` ~ sizeClass.stringof ~ `.allocateNext();
         }
 `);
     }
@@ -399,21 +401,21 @@ class FastallocGC : GC
     void enable()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        static void go(Gcx* gcx) nothrow
+        static void go(Gcx* tlGcx) nothrow
         {
-            gcx.disabled--;
+            tlGcx.disabled--;
         }
-        runLocked!(go)(&gcx);
+        runLocked!(go)(&tlGcx);
     }
 
     void disable()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        static void go(Gcx* gcx) nothrow
+        static void go(Gcx* tlGcx) nothrow
         {
-            gcx.disabled++;
+            tlGcx.disabled++;
         }
-        runLocked!(go)(&gcx);
+        runLocked!(go)(&tlGcx);
     }
 
     auto runLocked(alias func, Args...)(auto ref Args args)
@@ -471,7 +473,7 @@ class FastallocGC : GC
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = gcx.smallPools.qalloc(size, bits).base;
+        void* p = tlGcx.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         return p;
@@ -480,13 +482,13 @@ class FastallocGC : GC
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        return gcx.smallPools.qalloc(size, bits);
+        return tlGcx.smallPools.qalloc(size, bits);
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = gcx.smallPools.qalloc(size, bits).base;
+        void* p = tlGcx.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         // TODO zero memory
@@ -560,18 +562,18 @@ class FastallocGC : GC
     void addRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        gcx.roots.insertBack(Root(p));
+        tlGcx.roots.insertBack(Root(p));
     }
 
     void removeRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; gcx.roots)
+        foreach (ref r; tlGcx.roots)
         {
             if (r is p)
             {
-                r = gcx.roots.back;
-                gcx.roots.popBack();
+                r = tlGcx.roots.back;
+                tlGcx.roots.popBack();
                 return;
             }
         }
@@ -587,7 +589,7 @@ class FastallocGC : GC
     private int rootsApply(scope int delegate(ref Root) nothrow dg)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; gcx.roots)
+        foreach (ref r; tlGcx.roots)
         {
             if (auto result = dg(r))
                 return result;
@@ -598,18 +600,18 @@ class FastallocGC : GC
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
-        gcx.ranges.insertBack(Range(p, p + sz, cast() ti));
+        tlGcx.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
     void removeRange(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; gcx.ranges)
+        foreach (ref r; tlGcx.ranges)
         {
             if (r.pbot is p)
             {
-                r = gcx.ranges.back;
-                gcx.ranges.popBack();
+                r = tlGcx.ranges.back;
+                tlGcx.ranges.popBack();
                 return;
             }
         }
@@ -625,7 +627,7 @@ class FastallocGC : GC
     private int rangesApply(scope int delegate(ref Range) nothrow dg)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; gcx.ranges)
+        foreach (ref r; tlGcx.ranges)
         {
             if (auto result = dg(r))
                 return result;
