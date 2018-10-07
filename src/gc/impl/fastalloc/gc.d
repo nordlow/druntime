@@ -323,7 +323,7 @@ struct Gcx
 }
 
 // global allocator (`__gshared`)
-__gshared Gcx globalGcx;
+__gshared Gcx gGcx;        // TODO use
 
 Gcx tlGcx;                      // thread-local allocator instance
 
@@ -332,7 +332,7 @@ extern (C)
     static foreach (sizeClass; smallSizeClasses)
     {
         mixin(`
-        void* gc_malloc_` ~ sizeClass.stringof ~ `(uint ba = 0) @trusted nothrow
+        void* gc_tlmalloc_` ~ sizeClass.stringof ~ `(uint ba = 0) @trusted nothrow
         {
             if (ba & BlkAttr.NO_SCAN) // no scanning needed
                 return tlGcx.smallPools.unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();
