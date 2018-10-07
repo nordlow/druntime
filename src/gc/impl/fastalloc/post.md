@@ -22,12 +22,20 @@ https://github.com/nordlow/phobos-next/blob/master/snippets/gctester.d
 as seen in its output
 
 [per:~/Work/knet/phobos-next/snippets] 3s $ dmd-own gctester.d --DRT-gcopt=gc:fastalloc
-TODO
+ size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc
+    8  42.7  40.6    23.4        8.4        24.9     42.3   36.0
+   16  35.3  26.2    13.9        4.7        12.6     17.2   15.9
+   32  13.6  12.6     7.4        2.8         7.6     11.5   10.7
+   64  11.0   9.1     4.3        2.3         4.4      7.0    5.8
+  128   8.8   8.7     2.5        1.5         2.5      3.6    4.4
+  256  10.8   6.0     1.9        1.4         1.9      3.7    2.9
+  512   8.8   4.1     1.5        1.2         1.5      2.2    2.4
+ 1024   7.6   3.7     1.4        1.2         1.3      2.0    2.2
+  ns/w: nanoseconds per word
 
 compared to for the `conservative` one:
 
 [per:~/Work/knet/phobos-next/snippets] 3s $ dmd-own gctester.d --DRT-gcopt=gc:conservative
-TODO
 
 And yes, the non-locked variants of `gc_tlmallocN` used when `N` is known at
 compile-time in `fastalloc-gc` are _so_ much faster that they improve allocation
@@ -49,7 +57,8 @@ the end Dmitry's blogpost "Inside D's GC" at
 https://news.ycombinator.com/item?id=14592457
 
 This makes it possible to provide specialized page info layouts for each pool
-with a specific type class without manual code-duplication.
+with a specific type class without manual code-duplication. In other words,
+"design by introspection to the resque!".
 
 Now: is anybody interested in giving feedback on my progress so far,
 specifically if I've made any mistakes in my implementation of the global
