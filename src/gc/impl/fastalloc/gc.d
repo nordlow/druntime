@@ -477,9 +477,9 @@ class FastallocGC : GC
         lockNR();
         scope (failure) gcLock.unlock();
         void* p = gGcx.smallPools.qalloc(size, bits).base;
+        gcLock.unlock();
         if (size && p is null)
             onOutOfMemoryError();
-        gcLock.unlock();
         return p;
     }
 
@@ -512,7 +512,6 @@ class FastallocGC : GC
     {
         debug(PRINTF) printf("### %s(p:%p, size:%lu, bits:%u)\n", __FUNCTION__.ptr, p, size, bits);
         p = cstdlib.realloc(p, size);
-
         if (size && p is null)
             onOutOfMemoryError();
         return p;
