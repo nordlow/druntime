@@ -474,22 +474,34 @@ class FastallocGC : GC
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = tlGcx.smallPools.qalloc(size, bits).base;
+        lockNR();
+        scope (failure) gcLock.unlock();
+        void* p = gGcx.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
+        gcLock.unlock();
         return p;
     }
 
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        return tlGcx.smallPools.qalloc(size, bits);
+        lockNR();
+        scope (failure) gcLock.unlock();
+        BlkInfo blkinfo = gGcx.smallPools.qalloc(size, bits);
+        gcLock.unlock();
+        if (size && blkinfo.base is null)
+            onOutOfMemoryError();
+        return blkinfo;
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = tlGcx.smallPools.qalloc(size, bits).base;
+        lockNR();
+        scope (failure) gcLock.unlock();
+        void* p = gGcx.smallPools.qalloc(size, bits).base;
+        gcLock.unlock();
         if (size && p is null)
             onOutOfMemoryError();
         // TODO zero memory
