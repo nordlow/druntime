@@ -322,11 +322,9 @@ struct Gcx
     uint disabled; // turn off collections if >0
 }
 
-// global allocator (`__gshared`)
-__gshared Gcx gGcx;        // TODO use
-
 Gcx tlGcx;                      // thread-local allocator instance
 
+// size class specific overloads only for thread-local GC
 extern (C)
 {
     static foreach (sizeClass; smallSizeClasses)
@@ -348,6 +346,9 @@ class FastallocGC : GC
     import core.internal.spinlock;
     static gcLock = shared(AlignedSpinLock)(SpinLock.Contention.lengthy);
     static bool _inFinalizer;
+
+    // global allocator (`__gshared`)
+    __gshared Gcx gGcx;             // TODO use
 
     // lock GC, throw InvalidMemoryOperationError on recursive locking during finalization
     static void lockNR() @nogc nothrow
