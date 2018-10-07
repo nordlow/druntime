@@ -21,7 +21,7 @@ https://github.com/nordlow/phobos-next/blob/master/snippets/gctester.d
 
 as seen in its output
 
-[per:~/Work/knet/phobos-next/snippets] 3s $ dmd-own gctester.d --DRT-gcopt=gc:fastalloc
+$ dmd-own gctester.d --DRT-gcopt=gc:fastalloc
  size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc
     8  42.7  40.6    23.4        8.4        24.9     42.3   36.0
    16  35.3  26.2    13.9        4.7        12.6     17.2   15.9
@@ -34,6 +34,8 @@ as seen in its output
   ns/w: nanoseconds per word
 
 compared to for the `conservative` one:
+
+$ dmd-own gctester.d --DRT-gcopt=gc:conservative
  size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc
     8  46.3  50.9    38.1        7.7        34.9     28.6   30.1
    16  29.9  28.4    17.8        4.4        17.4     14.6   14.7
