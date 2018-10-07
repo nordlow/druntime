@@ -42,9 +42,9 @@ implementing support in the compiler for a lowering to, say, `__to_immutable(x)`
 or `__to_shared(x)` that copy these allocations to the global allocator
 `gGcx`. These ideas have already been discussed in previous forum posts.
 
-Note that it, opposite to the current conservative implementation, makes use of
-`static foreach` when generating distinct pool types for different size classes
-as outlined at the end Dmitry's blogpost "Inside D's GC" at
+Note that `fastalloc`, opposite to `conservative`, makes use of `static foreach`
+when generating distinct pool types for different size classes as outlined at
+the end Dmitry's blogpost "Inside D's GC" at
 
 https://news.ycombinator.com/item?id=14592457
 
