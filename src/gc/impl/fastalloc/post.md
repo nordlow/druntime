@@ -4,8 +4,10 @@ at
 
 https://github.com/nordlow/druntime/blob/fastalloc-gc/src/gc/impl/fastalloc/gc.d
 
-that, in its first incarnation, solely provides allocation. This allocation
-being slightly faster than the `conservative`, hence its name `fastalloc-gc`.
+that, in its first incarnation, solely provides allocation and in the long run
+will try to provide significantly faster collection than the current
+GC. Currently, this allocation is also slightly faster than the `conservative`,
+hence its name `fastalloc-gc`.
 
 The implementation currently does global allocation together with local
 allocation via the extra global functions (yes, not pretty, please give me ideas
