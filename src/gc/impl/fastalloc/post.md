@@ -56,7 +56,7 @@ https://news.ycombinator.com/item?id=14592457
 
 This makes it possible to provide specialized page info layouts for each pool
 with a specific type class without manual code-duplication. In other words,
-"design by introspection to the resque!".
+"design by introspection to the rescue!".
 
 Now: is anybody interested in giving feedback on my progress so far,
 specifically if I've made any mistakes in my implementation of the global
