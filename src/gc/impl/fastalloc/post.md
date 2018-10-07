@@ -33,22 +33,6 @@ $ dmd-own gctester.d --DRT-gcopt=gc:fastalloc
  1024   7.6   3.7     1.4        1.2         1.3      2.0    2.2
   ns/w: nanoseconds per word
 
-compared to for the `conservative` one:
-
-$ dmd-own gctester.d --DRT-gcopt=gc:conservative
- size new-C new-S GC.malloc gc_tlmalloc_N GC.calloc malloc calloc
-    8  46.3  50.9    38.1        7.7        34.9     28.6   30.1
-   16  29.9  28.4    17.8        4.4        17.4     14.6   14.7
-   32  13.9  16.2    10.9        2.9         9.6      8.5    8.6
-   64   8.9  10.0     7.3        1.8         5.8      5.1    5.4
-  128   8.0   6.3     3.8        1.4         4.0      3.4    3.8
-  256   5.2   4.7     3.3        1.2         3.0      3.8    2.8
-  512   5.3   3.0     2.4        1.1         2.5      2.3    2.4
- 1024   4.6   2.6     2.1        1.1         2.3      2.1    2.2
-  ns/w: nanoseconds per word
-
-[per:~/Work/knet/phobos-next/snippets] 3s $ dmd-own gctester.d --DRT-gcopt=gc:conservative
-
 And yes, the non-locked variants of `gc_tlmallocN` used when `N` is known at
 compile-time in `fastalloc-gc` are _so_ much faster that they improve allocation
 performance by about 40% for `N` being 16 and 32 compared to a non-locked
