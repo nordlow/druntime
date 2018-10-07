@@ -30,4 +30,4 @@ https://news.ycombinator.com/item?id=14592457
 
 This makes it possible to provide specialized page info layouts for each pool with a specific type class without manual code-duplication.
 
-Now: is anybody interested in giving feedback on my progress so far, specifically if I've made any mistakes in my implementation of global allocator (`gGcx`) vs. thread-local allocator (`tlGcx`).
+Now: is anybody interested in giving feedback on my progress so far, specifically if I've made any mistakes in my implementation of the global allocator (`gGcx`) vs. thread-local allocator (`tlGcx`).
