@@ -13,8 +13,8 @@ constant `smallSizeClasses`. This because I want to experiment with the possible
 allocation performance of thread-local GC allocation for D.
 
 For thread-local (non-spinlocked) GC allocation with specific size class
-overloads of gc_mallocN` and `gc_callocN`, where `N` is either 8, 16, 32, 64,
-etc I'm measuring _great_ allocation speeds-up in my GC-allocation benchmark at
+overloads of gc_tlmallocN` I'm measuring _great_ allocation speeds-up for 16, 32
+and 64 bits, in my GC-allocation benchmark at
 
 https://github.com/nordlow/phobos-next/blob/master/snippets/gctester.d
 
@@ -28,7 +28,7 @@ compared to for the `conservative` one:
 [per:~/Work/knet/phobos-next/snippets] 3s $ dmd-own gctester.d --DRT-gcopt=gc:conservative
 TODO
 
-And yes, the non-locked variants of `gc_mallocN` used when `N` is known at
+And yes, the non-locked variants of `gc_tlmallocN` used when `N` is known at
 compile-time in `fastalloc-gc` are _so_ much faster that they improve allocation
 performance by about 40% for `N` being 16 and 32 compared to a non-locked
 version of `gc_malloc` when `N` is _not_ known at compile-time. That's why I'm
