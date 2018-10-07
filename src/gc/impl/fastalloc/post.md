@@ -34,13 +34,12 @@ compile-time in `fastalloc-gc` are _so_ much faster that they improve allocation
 performance by about 40% for `N` being 16 and 32 compared to a non-locked
 version of `gc_malloc` when `N` is _not_ known at compile-time. That's why I'm
 benchmarking them in gctester.d. This is motivated by the fact that calls to
-`new T()` can be optimized to make use of these overloads for non-mutable
-storage of `T` because `T.sizeof` is in this case known at compile-time. And
-yes, I'm aware of that this optimization only works for instances of `T` that
-are not immediately being cast to immutable and shared. Handling this might be
-solved by implementing support in the compiler for a lowering to, say,
-`__to_immutable(x)` or `__to_shared(x)` that copy these allocations to the
-global allocator `gGcx`.
+`new T()` can be optimized to make use of these overloads for non-shared storage
+of `T` because `T.sizeof` is in this case known at compile-time. And yes, I'm
+aware of that this optimization only works for instances of `T` that are not
+immediately being cast to immutable and shared. Handling this might be solved by
+implementing support in the compiler for a lowering to, say, `__to_immutable(x)`
+or `__to_shared(x)` that copy these allocations to the global allocator `gGcx`.
 
 Note that it, opposite to the current conservative implementation, makes use of
 `static foreach` when generating distinct pool types for different size classes
