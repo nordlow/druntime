@@ -21,8 +21,6 @@
  *   - And later automatically inferred by the compiler.
  *
  * - Use jemalloc `size classes`:
- *   - Add overloads of malloc and qalloc for `smallSizeClasses`.
- *   - Use static foreach to generated pools for each size class with and without indirections.
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
  *   calls to `new T()` and feed into `N` size-dependent overloads of
