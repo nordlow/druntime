@@ -106,6 +106,22 @@ static import core.memory;
 extern (C) void onOutOfMemoryError(void* pretend_sideffect = null)
     @trusted pure nothrow @nogc; /* dmd @@@BUG11461@@@ */
 
+private
+{
+    extern (C)
+    {
+        // to allow compilation of this module without access to the rt package,
+        //  make these functions available from rt.lifetime
+        void rt_finalizeFromGC(void* p, size_t size, uint attr) nothrow;
+        int rt_hasFinalizerInSegment(void* p, size_t size, uint attr, in void[] segment) nothrow;
+
+        // Declared as an extern instead of importing core.exception
+        // to avoid inlining - see issue 13725.
+        void onInvalidMemoryOperationError() @nogc nothrow;
+        void onOutOfMemoryErrorNoGC() @nogc nothrow;
+    }
+}
+
 enum PAGESIZE = 4096;           // Linux $(shell getconf PAGESIZE)
 
 /// Small slot sizes classes (in bytes).
@@ -298,43 +314,47 @@ private:
 }
 // pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
-struct Store
+struct Gcx
 {
     Array!Root roots;
     Array!Range ranges;
     SmallPools smallPools;
+    uint disabled; // turn off collections if >0
 }
 
-// these need to be global variables (`__gshared`)
-__gshared Store globalStore;
+// need to be global variables (`__gshared`)
+__gshared Gcx gcx;
 
 extern (C)
 {
-    void* gc_malloc_8(uint ba = 0) @trusted nothrow
+    static foreach (sizeClass; smallSizeClasses)
     {
-        if (ba & BlkAttr.NO_SCAN) // no scanning needed
-            return globalStore.smallPools.unscannedPool8.allocateNext();
-        else
-            return globalStore.smallPools.scannedPool8.allocateNext();
-    }
-    void* gc_malloc_16(uint ba = 0) @trusted nothrow
-    {
-        if (ba & BlkAttr.NO_SCAN) // no scanning needed
-            return globalStore.smallPools.unscannedPool16.allocateNext();
-        else
-            return globalStore.smallPools.scannedPool16.allocateNext();
-    }
-    void* gc_malloc_32(uint ba = 0) @trusted nothrow
-    {
-        if (ba & BlkAttr.NO_SCAN) // no scanning needed
-            return globalStore.smallPools.unscannedPool32.allocateNext();
-        else
-            return globalStore.smallPools.scannedPool32.allocateNext();
+        mixin(`
+        void* gc_malloc_` ~ sizeClass.stringof ~ `(uint ba = 0) @trusted nothrow
+        {
+            if (ba & BlkAttr.NO_SCAN) // no scanning needed
+                return gcx.smallPools.unscannedPool` ~ sizeClass.stringof ~ `.allocateNext();
+            else
+                return gcx.smallPools.scannedPool` ~ sizeClass.stringof ~ `.allocateNext();
+        }
+`);
     }
 }
 
 class FastallocGC : GC
 {
+    import core.internal.spinlock;
+    static gcLock = shared(AlignedSpinLock)(SpinLock.Contention.lengthy);
+    static bool _inFinalizer;
+
+    // lock GC, throw InvalidMemoryOperationError on recursive locking during finalization
+    static void lockNR() @nogc nothrow
+    {
+        if (_inFinalizer)
+            onInvalidMemoryOperationError();
+        gcLock.lock();
+    }
+
     static void initialize(ref GC gc)
     {
         debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
@@ -379,11 +399,40 @@ class FastallocGC : GC
     void enable()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
+        static void go(Gcx* gcx) nothrow
+        {
+            gcx.disabled--;
+        }
+        runLocked!(go)(&gcx);
     }
 
     void disable()
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
+        static void go(Gcx* gcx) nothrow
+        {
+            gcx.disabled++;
+        }
+        runLocked!(go)(&gcx);
+    }
+
+    auto runLocked(alias func, Args...)(auto ref Args args)
+    {
+        debug(PROFILE_API) immutable tm = (config.profile > 1 ? currTime.ticks : 0);
+        lockNR();
+        scope (failure) gcLock.unlock();
+        debug(PROFILE_API) immutable tm2 = (config.profile > 1 ? currTime.ticks : 0);
+
+        static if (is(typeof(func(args)) == void))
+            func(args);
+        else
+            auto res = func(args);
+
+        debug(PROFILE_API) if (config.profile > 1) { lockTime += tm2 - tm; }
+        gcLock.unlock();
+
+        static if (!is(typeof(func(args)) == void))
+            return res;
     }
 
     void collect() nothrow
@@ -422,7 +471,7 @@ class FastallocGC : GC
     void* malloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = globalStore.smallPools.qalloc(size, bits).base;
+        void* p = gcx.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         return p;
@@ -431,13 +480,13 @@ class FastallocGC : GC
     BlkInfo qalloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        return globalStore.smallPools.qalloc(size, bits);
+        return gcx.smallPools.qalloc(size, bits);
     }
 
     void* calloc(size_t size, uint bits, const TypeInfo ti) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
-        void* p = globalStore.smallPools.qalloc(size, bits).base;
+        void* p = gcx.smallPools.qalloc(size, bits).base;
         if (size && p is null)
             onOutOfMemoryError();
         // TODO zero memory
@@ -511,18 +560,18 @@ class FastallocGC : GC
     void addRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        globalStore.roots.insertBack(Root(p));
+        gcx.roots.insertBack(Root(p));
     }
 
     void removeRoot(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; globalStore.roots)
+        foreach (ref r; gcx.roots)
         {
             if (r is p)
             {
-                r = globalStore.roots.back;
-                globalStore.roots.popBack();
+                r = gcx.roots.back;
+                gcx.roots.popBack();
                 return;
             }
         }
@@ -538,7 +587,7 @@ class FastallocGC : GC
     private int rootsApply(scope int delegate(ref Root) nothrow dg)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; globalStore.roots)
+        foreach (ref r; gcx.roots)
         {
             if (auto result = dg(r))
                 return result;
@@ -549,18 +598,18 @@ class FastallocGC : GC
     void addRange(void* p, size_t sz, const TypeInfo ti = null) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p, sz:%lu)\n", __FUNCTION__.ptr, p, sz);
-        globalStore.ranges.insertBack(Range(p, p + sz, cast() ti));
+        gcx.ranges.insertBack(Range(p, p + sz, cast() ti));
     }
 
     void removeRange(void* p) nothrow @nogc
     {
         debug(PRINTF) printf("### %s(p:%p)\n", __FUNCTION__.ptr, p);
-        foreach (ref r; globalStore.ranges)
+        foreach (ref r; gcx.ranges)
         {
             if (r.pbot is p)
             {
-                r = globalStore.ranges.back;
-                globalStore.ranges.popBack();
+                r = gcx.ranges.back;
+                gcx.ranges.popBack();
                 return;
             }
         }
@@ -576,7 +625,7 @@ class FastallocGC : GC
     private int rangesApply(scope int delegate(ref Range) nothrow dg)
     {
         debug(PRINTF) printf("### %s: \n", __FUNCTION__.ptr);
-        foreach (ref r; globalStore.ranges)
+        foreach (ref r; gcx.ranges)
         {
             if (auto result = dg(r))
                 return result;
