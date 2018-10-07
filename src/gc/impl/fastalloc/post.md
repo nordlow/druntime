@@ -40,7 +40,7 @@ aware of that this optimization only works for instances of `T` that are not
 immediately being cast to immutable and shared. Handling this might be solved by
 implementing support in the compiler for a lowering to, say, `__to_immutable(x)`
 or `__to_shared(x)` that copy these allocations to the global allocator
-`gGcx`. These ideas have already been discussed in other forum posts.
+`gGcx`. These ideas have already been discussed in previous forum posts.
 
 Note that it, opposite to the current conservative implementation, makes use of
 `static foreach` when generating distinct pool types for different size classes
