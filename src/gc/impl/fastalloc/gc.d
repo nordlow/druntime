@@ -16,7 +16,6 @@
  * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
  *
  * Spec:
- *
  * - Use jemalloc `size classes`:
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
