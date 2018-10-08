@@ -228,7 +228,7 @@ if (sizeClass >= smallSizeClasses[0])
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
 
-        printf("### %s(): pageIndex:%lu\n", __FUNCTION__.ptr, pageIndex);
+        printf("### %s(): pageIndex:%lu\n", __FUNCTION__.ptr, slotIndex);
 
         if (needNewPage)
         {
