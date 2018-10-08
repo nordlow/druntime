@@ -17,10 +17,6 @@
  *
  * Spec:
  *
- * - Support lock-free thread local allocation in separate pools (static foreach generated)
- *   - First as explicit calls to tlmalloc(), tlcalloc(), tlqalloc(), tlrealloc()
- *   - And later automatically inferred by the compiler.
- *
  * - Use jemalloc `size classes`:
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
