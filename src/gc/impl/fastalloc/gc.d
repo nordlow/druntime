@@ -9,6 +9,7 @@
  * GC.
  *
  * TODO
+ * - TODO check why finalizers are being called for classes and structs without destructors
  * - check ti to check if we should use value or ref pool
  * - TODO use `slotUsages` during allocation
  * - TODO use `slotMarks` during sweep
