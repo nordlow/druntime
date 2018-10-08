@@ -236,7 +236,12 @@ if (sizeClass >= smallSizeClasses[0])
         else
         {
             pageTables.ptr[pageIndex].slotUsages[slotIndex] = true; // mark slot
-            return &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex++];
+            auto ptr = &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex];
+            slotIndex += 1;
+            /* TODO instead of this find next set bit at `slotIndex` in
+             * `slotUsages` unless whole current `slotUsages`-word is all zero.
+             */
+            return ptr;
         }
     }
 
