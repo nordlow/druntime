@@ -225,10 +225,8 @@ if (sizeClass >= smallSizeClasses[0])
         // TODO instead of this find next set bit at `slotIndex` in
         // `slotUsages` unless whole current `slotUsages`-word is all zero.
 
-        const pageIndex = slotIndex / Page.slotCount;
-        const needNewPage = (slotIndex % Page.slotCount == 0);
-
-        printf("### %s(): pageIndex:%lu\n", __FUNCTION__.ptr, slotIndex);
+        immutable pageIndex = slotIndex / Page.slotCount;
+        immutable needNewPage = (slotIndex % Page.slotCount == 0);
 
         if (needNewPage)
         {
@@ -237,13 +235,18 @@ if (sizeClass >= smallSizeClasses[0])
             pageTables.insertBack(SmallPageTable!sizeClass(pagePtr));
 
             pageTables.ptr[pageIndex].slotUsages[0] = true; // mark slot
+
+            debug(PRINTF) printf("### %s(): slotIndex:%lu\n", __FUNCTION__.ptr, 0);
+
+            auto slotPtr = pagePtr.slots.ptr; // first slot
             slotIndex = 1;
-            return &pagePtr.slots[0]; // first slot
+            return slotPtr;
         }
         else
         {
+            debug(PRINTF) printf("### %s(): slotIndex:%lu\n", __FUNCTION__.ptr, slotIndex);
             pageTables.ptr[pageIndex].slotUsages[slotIndex] = true; // mark slot
-            return &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex++];
+            return &pageTables.ptr[pageIndex].pagePtr.slots.ptr[slotIndex++];
         }
     }
 
