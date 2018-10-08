@@ -202,7 +202,7 @@ struct SmallPageTable(uint sizeClass)
     enum slotCount = PAGESIZE/sizeClass;
 
     // bit `i` indicates if slot `i` in `*pagePtr` currently contains a initialized value
-    StaticBitArray!(slotCount) slotUsages;
+    StaticBitArray!(slotCount) slotUsages; // TODO benchmark with a byte-array instead for comparison
 
     // bit `i` indicates if slot `i` in `*pagePtr` has been marked
     StaticBitArray!(slotCount) slotMarks;
@@ -216,13 +216,20 @@ if (sizeClass >= smallSizeClasses[0])
 
     void* allocateNext() @trusted // pure nothrow @nogc
     {
+        version(LDC) pragma(inline, true);
+
         // TODO scan `slotUsages` at slotIndex using core.bitop.bsf to find
         // first free page if any. Use modification of `indexOfFirstSetBit` that
         // takes startIndex being `slotIndex` If no hit set `slotIndex` to
         // `Page.slotCount`
-        debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
+        // TODO instead of this find next set bit at `slotIndex` in
+        // `slotUsages` unless whole current `slotUsages`-word is all zero.
+
         const pageIndex = slotIndex / Page.slotCount;
         const needNewPage = (slotIndex % Page.slotCount == 0);
+
+        debug(PRINTF) printf("### %s()\n", __FUNCTION__.ptr);
+
         if (needNewPage)
         {
             Page* pagePtr = cast(Page*)os_mem_map(PAGESIZE);
@@ -236,12 +243,7 @@ if (sizeClass >= smallSizeClasses[0])
         else
         {
             pageTables.ptr[pageIndex].slotUsages[slotIndex] = true; // mark slot
-            auto ptr = &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex];
-            slotIndex += 1;
-            /* TODO instead of this find next set bit at `slotIndex` in
-             * `slotUsages` unless whole current `slotUsages`-word is all zero.
-             */
-            return ptr;
+            return &pageTables.ptr[pageIndex].pagePtr.slots[slotIndex++];
         }
     }
 
