@@ -71,7 +71,6 @@
  * - check ti to check if we should use value or ref pool
  * - TODO use `slotUsages` during allocation
  * - TODO use `slotMarks` during sweep
- * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
  *
  * References:
  * 0. Proposal: Dense mark bits and sweep-free allocation
