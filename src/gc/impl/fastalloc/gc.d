@@ -4,11 +4,14 @@
  *
  * - Make it conservative for now and later merge Rainer's precise add-ons.
  *
- * - Pools are segregated on both
+ * - Pools types are segregated on both
  *   - size class
  *   - scanningness: (whether they may contain pointers or not)
  *   - finalizers (for class or struct)
  *   leading `number_of_size_classes * 2 * 2` different pool kinds.
+ *
+ *   To make code less bloated use `static foreach` to generate, initialize and
+ *   different pools for these different size classes.
  *
  *   This makes the GC sweep-free (as in [0]) because only one continuous bitmap
  *   `slotUsages` needs to be kept during the normal allocation phase. During
@@ -20,9 +23,6 @@
  *   When the allocator has grown too large it will be neccessary to indeed do
  *   sweeps to free pages. But such sweeps can be triggered by low memory and
  *   doesn't have to do a complete sweep if low latency is needed.
- *
- * - Use `static foreach` when possible to generate, initialize and process
- *   global and thead-local pools of different size classes.
  *
  * - Use jemalloc `size classes`:
  *
