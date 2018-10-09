@@ -10,8 +10,8 @@
  *   - finalizers (for class or struct)
  *   leading `number_of_size_classes * 2 * 2` different pool kinds.
  *
- *   To make code less bloated use `static foreach` to generate, initialize and
- *   different pools for these different size classes.
+ *   Use `static foreach` to generate, initialize and different pools for these
+ *   different size classes without code duplication.
  *
  *   This makes the GC sweep-free (as in [0]) because only one continuous bitmap
  *   `slotUsages` needs to be kept during the normal allocation phase. During
