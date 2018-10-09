@@ -51,8 +51,6 @@
  *          scan that slot
  *     - Finally mark slot
  *
- * - Use sizeClass = nextPow2(size-1) given size => 0
- *
  * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
  *
  * - Key-Question:
