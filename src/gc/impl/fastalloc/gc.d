@@ -1,5 +1,4 @@
-/** This module contains a new attempt at a conservative (and later a precise)
- * GC inspired by references [0] and [1].
+/** A new GC inspired by references [0] and [1].
  *
  * Spec (conservative GC):
  *
