@@ -1,5 +1,5 @@
 /** This module contains a new attempt at a conservative (and later a precise)
- * GC inspired by Dmitry Olshanky's post "Inside D's GC".
+ * GC inspired by references [0] and [1].
  *
  * Please note that block attribute data must be tracked, or at a minimum, the
  * FINALIZE bit must be tracked for any allocated memory block because calling
@@ -15,7 +15,23 @@
  * - TODO use `slotMarks` during sweep
  * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
  *
- * Spec:
+ * Spec (conservative GC):
+ *
+ * - Pools are segregated on both
+ *   - size class
+ *   - scanningness: (whether they may contain pointers or not)
+ *   - finalizers (for class or struct)
+ *   leading `number_of_size_classes * 2 * 2` different pool kinds.
+ *
+ *   This makes the GC sweep-free (as in [0]) because only one continuous bitmap
+ *   `slotUsages` needs to be kept during the normal allocation phase. During
+ *   mark-phase an equally sized bitmap, `slotMarks`, is zero-constructed using
+ *   mmap and filled in. When mark-phase is complete this new bitmap `slotMarks`
+ *   replaces `slotUsages`. This may only work for pools without finalizers.
+ *
+ * - Use `static foreach` when possible to generate, initialize and process
+ *   global and thead-local pools of different size classes.
+ *
  * - Use jemalloc `size classes`:
  *
  * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
@@ -25,9 +41,6 @@
  * - Use hash-table from basepointer to page index to speed up page-search
  *   ([1]). Use hash-table with open addressing and Fibonacci hashing
  *   (for instance phobos-next open_hashmap_or_hashset.c)
- *
- * - Use `static foreach` when possible to generate, initialize and process
- *   global and thead-local pools of different size classes.
  *
  * - Add run-time information for implicit (by compiler) and explicit (by
  *   developer in library) casting from mutable to `immutable` and, in turn,
@@ -52,6 +65,8 @@
  *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data) and keep some extra
  *
  * References:
+ * 0. Proposal: Dense mark bits and sweep-free allocation
+ *    https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
  * 1. Inside D's GC:
  *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
  * 2. DIP 46: Region Based Memory Allocation
