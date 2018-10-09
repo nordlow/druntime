@@ -52,7 +52,6 @@
  *     - Finally mark slot
  *
  * - Use sizeClass = nextPow2(size-1) given size => 0
- * - Use `os_mem_map` and `os_mem_unmap`
  *
  * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
  *
