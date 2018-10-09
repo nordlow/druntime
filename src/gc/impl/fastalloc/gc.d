@@ -533,12 +533,9 @@ class FastallocGC : GC
         gcLock.unlock();
         if (size && p is null)
             onOutOfMemoryError();
-
-        // zero
         import core.stdc.string : memset;
-        memset(p, 0, size);
+        memset(p, 0, size);     // zero
         // why is this slower than memset? (cast(size_t*)p)[0 .. size/size_t.sizeof] = 0;
-
         return p;
     }
 
