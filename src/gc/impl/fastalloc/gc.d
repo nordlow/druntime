@@ -26,9 +26,9 @@
  *   This makes the GC sweep-free (as in [0]) because only one continuous bitmap
  *   `slotUsages` needs to be kept during the normal allocation phase. During
  *   mark-phase an equally sized bitmap, `slotMarks`, is zero-constructed using
- *   mmap and filled in. When mark-phase is complete this new bitmap `slotMarks`
- *   replaces `slotUsages`. This may or may not work for pools of objects that
- *   have finalizers.
+ *   mmap and filled in as pointers to slots are discovered. When mark-phase is
+ *   complete this new bitmap `slotMarks` replaces `slotUsages`. This may or may
+ *   not work for pools of objects that have finalizers (TODO find out).
  *
  * - Use `static foreach` when possible to generate, initialize and process
  *   global and thead-local pools of different size classes.
