@@ -38,8 +38,10 @@
  *   `shared` and allocated in the first place on the global GC heap.
  *
  * - Mark-phase:
- *   - For each reachable pointer `p`:
- *     - Check if `p` is reachable
+ *   - For each potential pointer `p`:
+ *     - Check if `p` lies within address bounds of all pools.
+ *     - If so, find page storing that pointer (using a hashmap from base pointers to pages)
+ *     - Tag corresponding slot as used.
  *
  * - Use sizeClass = nextPow2(size-1) given size => 0
  * - Use `os_mem_map` and `os_mem_unmap`
