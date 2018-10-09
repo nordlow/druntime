@@ -1,20 +1,6 @@
 /** This module contains a new attempt at a conservative (and later a precise)
  * GC inspired by references [0] and [1].
  *
- * Please note that block attribute data must be tracked, or at a minimum, the
- * FINALIZE bit must be tracked for any allocated memory block because calling
- * rt_finalize on a non-object block can result in an access violation.  In the
- * allocator below, this tracking is done via a leading uint bitmask.  A real
- * allocator may do better to store this data separately, similar to the basic
- * GC.
- *
- * TODO
- * - TODO check why finalizers are being called for classes and structs without destructors
- * - check ti to check if we should use value or ref pool
- * - TODO use `slotUsages` during allocation
- * - TODO use `slotMarks` during sweep
- * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
- *
  * Spec (conservative GC):
  *
  * - Pools are segregated on both
@@ -64,6 +50,20 @@
  *     1. be explicitly stored in a bitarray and allocated in conjunction with pages somehow (more performant for dense representations)
  *        This requires this bitarray to be dynamically expanded and deleted in-place when pages are removed
  *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data) and keep some extra
+ *
+ * - Note: Please note that block attribute data must be tracked, or at a
+ *   minimum, the FINALIZE bit must be tracked for any allocated memory block
+ *   because calling rt_finalize on a non-object block can result in an access
+ *   violation.  In the allocator below, this tracking is done via a leading
+ *   uint bitmask.  A real allocator may do better to store this data
+ *   separately, similar to the basic GC.
+ *
+ * TODO
+ * - TODO check why finalizers are being called for classes and structs without destructors
+ * - check ti to check if we should use value or ref pool
+ * - TODO use `slotUsages` during allocation
+ * - TODO use `slotMarks` during sweep
+ * - TODO add new `MultiPageSlot` for size classes >= PAGESIZE.
  *
  * References:
  * 0. Proposal: Dense mark bits and sweep-free allocation
