@@ -45,12 +45,11 @@
  *   - For each potential pointer `p` in stack
  *     - Check if `p` lies within address bounds of all pools.
  *     - If so, find page storing that pointer (using a hashmap from base pointers to pages)
- *     - Tag corresponding slot as used.
  *     - If that slot lies in a pool and
  *          and that slot belongs to a pool whols element types may contain pointers
  *          that slot hasn't yet been marked
  *          scan that slot
- *     - Finally mark that slot
+ *     - Finally mark slot
  *
  * - Use sizeClass = nextPow2(size-1) given size => 0
  * - Use `os_mem_map` and `os_mem_unmap`
