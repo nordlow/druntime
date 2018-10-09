@@ -533,7 +533,7 @@ class FastallocGC : GC
         gcLock.unlock();
         if (size && p is null)
             onOutOfMemoryError();
-        // TODO zero memory
+        (cast(size_t*)p)[0 .. size/size_t.sizeof] = 0; // zero. TODO is this the fastest way?
         return p;
     }
 
