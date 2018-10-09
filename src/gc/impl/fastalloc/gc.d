@@ -533,7 +533,12 @@ class FastallocGC : GC
         gcLock.unlock();
         if (size && p is null)
             onOutOfMemoryError();
-        (cast(size_t*)p)[0 .. size/size_t.sizeof] = 0; // zero. TODO is this the fastest way?
+
+        // zero
+        import core.stdc.string : memset;
+        memset(p, 0, size);
+        // why is this slower than memset? (cast(size_t*)p)[0 .. size/size_t.sizeof] = 0;
+
         return p;
     }
 
