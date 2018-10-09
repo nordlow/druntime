@@ -1,6 +1,8 @@
 /** A new GC inspired by references [0] and [1].
  *
- * Spec (conservative GC):
+ * Spec:
+ *
+ * - Make it conservative for now and later merge Rainer's precise add-ons.
  *
  * - Pools are segregated on both
  *   - size class
