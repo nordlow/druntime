@@ -18,8 +18,8 @@
  *   not work for pools of objects that have finalizers (TODO find out).
  *
  *   When the allocator has grown too large it will be neccessary to indeed do
- *   sweeps to free pages. But such sweeps can kick in the app is running low on
- *   memory and doesn't have to do a complete sweep if low latency is needed.
+ *   sweeps to free pages. But such sweeps can be triggered by low memory and
+ *   doesn't have to do a complete sweep if low latency is needed.
  *
  * - Use `static foreach` when possible to generate, initialize and process
  *   global and thead-local pools of different size classes.
