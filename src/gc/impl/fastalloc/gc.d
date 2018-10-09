@@ -27,7 +27,8 @@
  *   `slotUsages` needs to be kept during the normal allocation phase. During
  *   mark-phase an equally sized bitmap, `slotMarks`, is zero-constructed using
  *   mmap and filled in. When mark-phase is complete this new bitmap `slotMarks`
- *   replaces `slotUsages`. This may only work for pools without finalizers.
+ *   replaces `slotUsages`. This may or may not work for pools of objects that
+ *   have finalizers.
  *
  * - Use `static foreach` when possible to generate, initialize and process
  *   global and thead-local pools of different size classes.
