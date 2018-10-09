@@ -71,6 +71,7 @@
  * - check ti to check if we should use value or ref pool
  * - TODO use `slotUsages` during allocation
  * - TODO use `slotMarks` during sweep
+ * - TODO figure out if we need medium and large sized slots as outline in [1].
  *
  * References:
  * 0. Proposal: Dense mark bits and sweep-free allocation
