@@ -25,9 +25,10 @@
  *   doesn't have to do a complete sweep if low latency is needed.
  *
  * - Use jemalloc `size classes`:
+ *   - For size classes in between powers of two we can allocate pages in 3*n chunks
  *
- * - Calculate size class at compile-time using next power of 2 of `T.sizeof` for
- *   calls to `new T()` and feed into `N` size-dependent overloads of
+ * - Calculate size class at compile-time using next power of 2 of `T.sizeof`
+ * for calls to `new T()` and feed into `N` size-dependent overloads of
  *   `mallocN()`, `callocN()`, `reallocN()` etc.
  *
  * - Use hash-table from basepointer to page index to speed up page-search
@@ -44,20 +45,24 @@
  * - Mark-phase:
  *   - For each potential pointer `p` in stack
  *     - Check if `p` lies within address bounds of all pools.
- *     - If so, find page storing that pointer (using a hashmap from base pointers to pages)
+ *     - If so, find page storing that pointer (using a hashmap from base
+ * pointers to pages)
  *     - If that slot lies in a pool and
- *          and that slot belongs to a pool whols element types may contain pointers
- *          that slot hasn't yet been marked
- *          scan that slot
+ *          and that slot belongs to a pool whols element types may contain
+ * pointers that slot hasn't yet been marked scan that slot
  *     - Finally mark slot
  *
- * - Find first free slot (0) in pageSlotOccupancies bitarray of length using core.bitop. Use my own bitarray.
+ * - Find first free slot (0) in pageSlotOccupancies bitarray of length using
+ * core.bitop. Use my own bitarray.
  *
  * - Key-Question:
  *   - Should slot occupancy status
- *     1. be explicitly stored in a bitarray and allocated in conjunction with pages somehow (more performant for dense representations)
- *        This requires this bitarray to be dynamically expanded and deleted in-place when pages are removed
- *     2. automatically deduced during sweep into a hashset of pointers (more performant for sparse data) and keep some extra
+ *     1. be explicitly stored in a bitarray and allocated in conjunction with
+ * pages somehow (more performant for dense representations) This requires this
+ * bitarray to be dynamically expanded and deleted in-place when pages are
+ * removed
+ *     2. automatically deduced during sweep into a hashset of pointers (more
+ * performant for sparse data) and keep some extra
  *
  * - Note: Please note that block attribute data must be tracked, or at a
  *   minimum, the FINALIZE bit must be tracked for any allocated memory block
@@ -67,7 +72,8 @@
  *   separately, similar to the basic GC.
  *
  * TODO
- * - TODO check why finalizers are being called for classes and structs without destructors
+ * - TODO check why finalizers are being called for classes and structs without
+ * destructors
  * - check ti to check if we should use value or ref pool
  * - TODO use `slotUsages` during allocation
  * - TODO use `slotMarks` during sweep
@@ -75,8 +81,8 @@
  *
  * References:
  * 0. Proposal: Dense mark bits and sweep-free allocation
- *    https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md and in turn
- *    https://github.com/golang/go/issues/12800
+ *    https://github.com/golang/proposal/blob/master/design/12800-sweep-free-alloc.md
+ * and in turn https://github.com/golang/go/issues/12800
  * 1. Inside D's GC:
  *    https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
  * 2. DIP 46: Region Based Memory Allocation
@@ -94,7 +100,8 @@
  *    https://www.facebook.com/notes/facebook-engineering/scalable-memory-allocation-using-jemalloc/480222803919/
  * 8. How does jemalloc work? What are the benefits?
  *    https://stackoverflow.com/questions/1624726/how-does-jemalloc-work-what-are-the-benefits
- * 9. What are the advantages and disadvantages of having mark bits together and separate for Garbage Collection
+ * 9. What are the advantages and disadvantages of having mark bits together and
+ * separate for Garbage Collection
  *    https://stackoverflow.com/questions/23057531/what-are-the-advantages-and-disadvantages-of-having-mark-bits-together-and-separ
  *
  * Copyright: Copyright Per Nordlöw 2018 - .
