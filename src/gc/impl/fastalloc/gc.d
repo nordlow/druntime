@@ -365,6 +365,13 @@ extern (C)
 {
     static foreach (sizeClass; smallSizeClasses)
     {
+        /* TODO use template `mixin` containing, in turn, a `mixin` for generating
+         * the symbol names `gc_tlmalloc_32`, `unscannedPool32` and
+         * `scannedPool32` for sizeClass `32`.
+         *
+         * TODO Since https://github.com/dlang/dmd/pull/8813 we can now use:
+         * `mixin("gc_tlmalloc_", sizeClass);` for symbol generation
+         */
         mixin(`
         void* gc_tlmalloc_` ~ sizeClass.stringof ~ `(uint ba = 0) @trusted nothrow
         {
