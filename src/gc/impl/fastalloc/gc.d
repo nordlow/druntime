@@ -246,6 +246,11 @@ if (sizeClass >= smallSizeClasses[0])
 {
     alias Page = SmallPage!(sizeClass);
 
+    this(size_t pageTableCapacity)
+    {
+        pageTables.capacity = pageTableCapacity;
+    }
+
     void* allocateNext() @trusted // pure nothrow @nogc
     {
         version(LDC) pragma(inline, true);
@@ -300,6 +305,16 @@ unittest
 /// All small pools.
 struct SmallPools
 {
+    this(size_t pageTableCapacity)
+    {
+        static foreach (sizeClass; smallSizeClasses)
+        {
+            // Quote from https://olshansky.me/gc/runtime/dlang/2017/06/14/inside-d-gc.html
+            // "Fine grained locking from the start, I see no problem with per pool locking."
+            mixin(`this.unscannedPool` ~ sizeClass.stringof ~ ` = SmallPool!(sizeClass, false)(pageTableCapacity);`);
+            mixin(`this.scannedPool`    ~ sizeClass.stringof ~ ` = SmallPool!(sizeClass, true)(pageTableCapacity);`);
+        }
+    }
     BlkInfo qalloc(size_t size, uint bits) nothrow
     {
         debug(PRINTF) printf("### %s(size:%lu, bits:%u)\n", __FUNCTION__.ptr, size, bits);
@@ -352,6 +367,10 @@ private:
 
 struct Gcx
 {
+    this(size_t pageTableCapacity)
+    {
+        this.smallPools = SmallPools(pageTableCapacity);
+    }
     Array!Root roots;
     Array!Range ranges;
     SmallPools smallPools;
