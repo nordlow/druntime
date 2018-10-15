@@ -45,14 +45,35 @@ struct PagedDynamicArray(T)
         return _capacityInPages*PAGESIZE;
     }
 
+    /// Set length to `newLength`.
     @property void length(size_t newLength) @trusted
+    {
+        if (newLength == 0)     // if zero `newLength` free stuff
+        {
+            version(PRINTF) printf("### %s() zeroed\n", __FUNCTION__.ptr);
+            if (_ptr != null)
+            {
+                os_mem_unmap(_ptr, capacityInBytes);
+                _ptr = null;
+            }
+            _capacityInPages = 0;
+        }
+        else
+        {
+            capacity = newLength; // set capacity
+        }
+        _length = newLength;
+    }
+
+    /// Set capacity to `newCapacity`.
+    @property void capacity(size_t newCapacity) @trusted
     {
         import core.checkedint : mulu;
 
-        if (newLength*T.sizeof > capacityInBytes) // common case first
+        if (newCapacity*T.sizeof > capacityInBytes) // common case first
         {
             bool overflow = false;
-            const size_t reqsize = mulu(T.sizeof, newLength, overflow);
+            const size_t reqsize = mulu(T.sizeof, newCapacity, overflow);
             const size_t newCapacityInPages = (reqsize + PAGESIZE - 1) / PAGESIZE;
             version(PRINTF) printf("### %s() newCapacityInPages:%lu\n", __FUNCTION__.ptr, newCapacityInPages);
             if (overflow)
@@ -109,18 +130,6 @@ struct PagedDynamicArray(T)
             //     }
             // }
         }
-        else if (newLength == 0)
-        {
-            version(PRINTF) printf("### %s() zeroed\n", __FUNCTION__.ptr);
-            if (_ptr != null)
-            {
-                os_mem_unmap(_ptr, capacityInBytes);
-                _ptr = null;
-            }
-            _capacityInPages = 0;
-        }
-
-        _length = newLength;
     }
 
     @property bool empty() const
