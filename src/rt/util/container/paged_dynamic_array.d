@@ -65,15 +65,15 @@ struct PagedDynamicArray(T)
         _length = newLength;
     }
 
-    /// Set capacity to `newCapacityInBytes`.
-    @property void capacity(size_t newCapacityInBytes) @trusted
+    /// Set capacity to `newCapacity`.
+    @property void capacity(size_t newCapacity) @trusted
     {
         import core.checkedint : mulu;
 
-        if (newCapacityInBytes*T.sizeof > capacityInBytes) // common case first
+        if (newCapacity*T.sizeof > capacityInBytes) // common case first
         {
             bool overflow = false;
-            const size_t reqsize = mulu(T.sizeof, newCapacityInBytes, overflow);
+            const size_t reqsize = mulu(T.sizeof, newCapacity, overflow);
             const size_t newCapacityInPages = (reqsize + PAGESIZE - 1) / PAGESIZE;
             version(PRINTF) printf("### %s() newCapacityInPages:%lu\n", __FUNCTION__.ptr, newCapacityInPages);
             if (overflow)
