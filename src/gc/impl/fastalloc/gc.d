@@ -365,9 +365,11 @@ private:
 }
 // pragma(msg, "SmallPools.sizeof: ", SmallPools.sizeof);
 
+enum pageTableCapacityDefault = 256*PAGESIZE; // eight pages
+
 struct Gcx
 {
-    this(size_t pageTableCapacity)
+    this(size_t pageTableCapacity) // 1 one megabyte per table
     {
         this.smallPools = SmallPools(pageTableCapacity);
     }
@@ -378,6 +380,10 @@ struct Gcx
 }
 
 Gcx tlGcx;                      // thread-local allocator instance
+static this()
+{
+    tlGcx = Gcx(pageTableCapacityDefault);
+}
 
 // size class specific overloads only for thread-local GC
 extern (C)
@@ -410,7 +416,7 @@ class FastallocGC : GC
     static bool _inFinalizer;
 
     // global allocator (`__gshared`)
-    __gshared Gcx gGcx;             // TODO use
+    __gshared Gcx gGcx;
 
     // lock GC, throw InvalidMemoryOperationError on recursive locking during finalization
     static void lockNR() @nogc nothrow
@@ -434,8 +440,10 @@ class FastallocGC : GC
 
         auto init = typeid(FastallocGC).initializer();
         assert(init.length == __traits(classInstanceSize, FastallocGC));
-        auto instance = cast(FastallocGC) memcpy(p, init.ptr, init.length);
+        auto instance = cast(FastallocGC)memcpy(p, init.ptr, init.length);
         instance.__ctor();
+
+        instance.gGcx = Gcx(pageTableCapacityDefault);
 
         gc = instance;
     }
